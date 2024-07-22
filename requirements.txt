@@ -1,0 +1,8 @@
+pydantic
+torch
+lightning
+transformers
+pandas
+scikit-learn
+sentencepiece
+protobuf

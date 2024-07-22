@@ -12,6 +12,8 @@ from transformer.params import SelfAttentionParams, MultiHeadSelfAttentionParams
 
 __all__ = ["MultiHeadSelfAttention", "SelfAttention"]
 
+EPS = torch.finfo().eps
+
 
 class MultiHeadSelfAttention(LightningModule):
     """TODO: docstring"""
@@ -40,14 +42,17 @@ class MultiHeadSelfAttention(LightningModule):
         q: torch.FloatTensor,
         k: torch.FloatTensor,
         v: torch.FloatTensor,
+        masks: torch.LongTensor,
     ) -> torch.FloatTensor:
         # concatenate attention head outputs
-        heads = torch.hstack([head(q, k, v) for head in self.model["heads"]])
-        # shape: [batch_size, value_dim * num_heads]
+        heads = torch.cat(
+            [head(q, k, v, masks=masks) for head in self.model["heads"]], dim=-1
+        )
+        # shape: [batch_size, context_length, value_dim * num_heads (= model_dim)]
 
         # project onto output matrix
         return self.model["proj"](heads)
-        # shape: [batch_size, model_dim]
+        # shape: [batch_size, context_length, model_dim]
 
 
 class SelfAttention(LightningModule):
@@ -81,20 +86,28 @@ class SelfAttention(LightningModule):
         q: torch.FloatTensor,
         k: torch.FloatTensor,
         v: torch.FloatTensor,
+        masks: torch.LongTensor,
     ) -> torch.FloatTensor:
         # project inputs onto weight matrices
-        q = self.model["query_proj"](q)  # shape: [batch_size, key_dim]
-        k = self.model["key_proj"](k)  # shape: [batch_size, key_dim]
-        v = self.model["value_proj"](v)  # shape: [batch_size, value_dim]
+        q = self.model["query_proj"](q)
+        k = self.model["key_proj"](k)
+        # shapes: [batch_size, context_length, key_dim]
+        v = self.model["value_proj"](v)
+        # shape: [batch_size, context_length, value_dim]
 
         # calculate scores, i.e. scaled dot products
-        scores = q @ k.T / math.sqrt(self.params.key_dim)
-        # shape: [batch_size, batch_size]
+        scores = q @ k.mT / math.sqrt(self.params.key_dim)
+        # shape: [batch_size, context_length, context_length]
 
+        # apply tokenizer attention mask to ignore padding (a.k.a. key padding mask)
+        tokenizer_mask = masks.unsqueeze(1) * masks.unsqueeze(-1)
+        scores += torch.where(tokenizer_mask == 0, -EPS, 0)
+        # shape: [batch_size, context_length, context_length]
+
+        # apply upper-diagonal lookahead mask before softmax to prevent looking into future
         if self.mask:
-            # mask upper diagonal before softmax to prevent looking into future
-            scores += torch.triu(-torch.inf * torch.ones_like(scores), diagonal=1)
-            # shape: [batch_size, batch_size]
+            scores += torch.triu(-EPS * torch.ones_like(scores), diagonal=1)
+            # shape: [batch_size, context_length, context_length]
 
-        return nn.functional.softmax(scores, dim=0) @ v
-        # shape: [batch_size, value_dim]
+        return nn.functional.softmax(scores, dim=-1) @ v
+        # shape: [batch_size, context_length, value_dim]
