@@ -86,7 +86,7 @@ class SelfAttention(LightningModule):
         q: torch.FloatTensor,
         k: torch.FloatTensor,
         v: torch.FloatTensor,
-        masks: torch.LongTensor,
+        masks: torch.LongTensor | None = None,
     ) -> torch.FloatTensor:
         # project inputs onto weight matrices
         q = self.model["query_proj"](q)
@@ -99,15 +99,18 @@ class SelfAttention(LightningModule):
         scores = q @ k.mT / math.sqrt(self.params.key_dim)
         # shape: [batch_size, context_length, context_length]
 
-        # apply tokenizer attention mask to ignore padding (a.k.a. key padding mask)
-        tokenizer_mask = masks.unsqueeze(1) * masks.unsqueeze(-1)
-        scores += torch.where(tokenizer_mask == 0, -EPS, 0)
+        # tokenizer attention mask to ignore padding (a.k.a. key padding mask)
+        attn_mask = 1 - masks.unsqueeze(1) * masks.unsqueeze(-1)
         # shape: [batch_size, context_length, context_length]
 
-        # apply upper-diagonal lookahead mask before softmax to prevent looking into future
-        if self.mask:
-            scores += torch.triu(-EPS * torch.ones_like(scores), diagonal=1)
+        # upper-diagonal lookahead mask before softmax to prevent looking into future
+        if self.mask and masks is not None:
+            attn_mask |= torch.triu(torch.ones_like(scores), diagonal=1)
             # shape: [batch_size, context_length, context_length]
 
+        # apply mask(s)
+        scores.masked_fill_(attn_mask, -EPS)
+
+        # compute scores
         return nn.functional.softmax(scores, dim=-1) @ v
         # shape: [batch_size, context_length, value_dim]

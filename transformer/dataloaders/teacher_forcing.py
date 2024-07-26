@@ -1,5 +1,6 @@
 import abc
 from operator import itemgetter
+from typing import Literal
 
 import torch
 from torch.utils.data import DataLoader, Dataset
@@ -18,7 +19,10 @@ class TeacherForcingDataModule(LightningDataModule):
         tokenizer: PreTrainedTokenizer,
         context_length: int,
         batch_size: int,
+        val_size: float,
         test_size: float,
+        num_workers: int | None = None,
+        persistent_workers: bool = False,
         limit: int | None = None,
         random_state: int | np.random.RandomState | None = None,
     ):
@@ -26,41 +30,77 @@ class TeacherForcingDataModule(LightningDataModule):
         self.tokenizer = tokenizer
         self.context_length = context_length
         self.batch_size = batch_size
+        self.val_size = val_size
         self.test_size = test_size
+        self.num_workers = num_workers
+        self.persistent_workers = persistent_workers
         self.limit = limit
         self.random_state = random_state
+        self.data = []
+        self.splits: dict[Literal["train", "val", "test"], Dataset] = {}
 
     @abc.abstractmethod
     def setup(self, stage: str):
         # limit the data if specified
         data = self.data[: self.limit] if self.limit else self.data
 
-        # generate train/ test set splits
-        train, test = train_test_split(
-            data, test_size=self.test_size, random_state=self.random_state
+        # generate train/val/test set splits
+        splits: dict[Literal["train", "val", "test"], list[str]] = {}
+        splits["train"], rest = train_test_split(
+            data,
+            test_size=(self.val_size + self.test_size), 
+            random_state=self.random_state,
+        )
+        splits["val"], splits["test"] = train_test_split(
+            rest, 
+            test_size=(self.test_size / (self.val_size + self.test_size)), 
+            random_state=self.random_state,
         )
 
-        # encode training data and obtain examples, labels and masks
-        train_ids, train_masks = self._encode(train)
-        self.train_set = TeacherForcingDataset(
-            input_ids=train_ids[:, :-1],
-            target_ids=train_ids[:, 1:],
-            attention_masks=train_masks[:, :-1],
-        )
-
-        # encode test data and obtain examples, labels and masks
-        test_ids, test_masks = self._encode(test)
-        self.test_set = TeacherForcingDataset(
-            input_ids=test_ids[:, :-1],
-            target_ids=test_ids[:, 1:],
-            attention_masks=test_masks[:, :-1],
-        )
+        for split, split_data in splits.items():
+            # encode data and obtain examples, labels and masks
+            ids, masks = self._encode(split_data)
+            self.splits[split] = TeacherForcingDataset(
+                input_ids=ids[:, :-1],
+                target_ids=ids[:, 1:],
+                attention_masks=masks[:, :-1]
+            )
 
     def train_dataloader(self) -> DataLoader:
-        return DataLoader(self.train_set, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(
+            self.splits["train"], 
+            batch_size=self.batch_size, 
+            shuffle=True, 
+            num_workers=self.num_workers, 
+            persistent_workers=self.persistent_workers,
+        )
+    
+    def val_dataloader(self) -> DataLoader:
+        return DataLoader(
+            self.splits["val"], 
+            batch_size=self.batch_size, 
+            shuffle=False, 
+            num_workers=self.num_workers, 
+            persistent_workers=self.persistent_workers,
+        )
 
     def test_dataloader(self) -> DataLoader:
-        return DataLoader(self.train_set, batch_size=self.batch_size, shuffle=False)
+        return DataLoader(
+            self.splits["test"], 
+            batch_size=self.batch_size, 
+            shuffle=False, 
+            num_workers=self.num_workers, 
+            persistent_workers=self.persistent_workers,
+        )
+    
+    def predict_dataloader(self) -> DataLoader:
+        return DataLoader(
+            self.splits["test"], 
+            batch_size=self.batch_size, 
+            shuffle=False, 
+            num_workers=self.num_workers, 
+            persistent_workers=self.persistent_workers,
+        )
 
     def _encode(self, data: list[str]) -> tuple[torch.LongTensor, torch.LongTensor]:
         return itemgetter("input_ids", "attention_mask")(

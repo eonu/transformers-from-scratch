@@ -94,3 +94,6 @@ venv.bak/
 
 # Changelog entry
 ENTRY.md
+
+# Lightning checkpoints
+lightning_logs/

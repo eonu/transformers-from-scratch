@@ -16,6 +16,7 @@ class TransformerParams(pyd.BaseModel, frozen=True, protected_namespaces=()):
     """TODO: docstring"""
 
     # transformer level params
+    context_length: pyd.PositiveInt
     num_blocks: pyd.PositiveInt = 6
     model_dim: pyd.PositiveInt = 512
     # transformer block level params

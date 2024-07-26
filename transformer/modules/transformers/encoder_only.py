@@ -19,20 +19,17 @@ class Transformer(LightningModule):
     ) -> Transformer:
         super().__init__()
         self.params: TransformerParams = params
-        self.model = nn.ModuleList(
-            [
+        self.model = nn.Sequential(
+            *[
                 TransformerBlock(self.params.block_params)
                 for _ in range(self.params.num_blocks)
             ]
         )
 
     def forward(
-        self: Transformer, x: torch.FloatTensor, masks: torch.LongTensor
+        self: Transformer, x: torch.FloatTensor
     ) -> torch.FloatTensor:
-        emb = x
-        for block in self.model:
-            emb = block(emb, masks)
-        return emb
+        return self.model(x)
         # shape: [batch_size, context_length, model_dim]
 
 
@@ -48,7 +45,7 @@ class TransformerBlock(LightningModule):
         self.model: nn.ModuleDict = nn.ModuleDict(
             {
                 "attn": MultiHeadSelfAttention(
-                    self.params.multi_head_params, mask=True
+                    self.params.multi_head_params, mask=False
                 ),
                 "attn_dropout": nn.Dropout(0.1),
                 "norm_attn": nn.LayerNorm(self.params.model_dim),
@@ -63,13 +60,9 @@ class TransformerBlock(LightningModule):
             }
         )
 
-    def forward(
-        self: TransformerBlock, x: torch.FloatTensor, masks: torch.LongTensor
-    ) -> torch.FloatTensor:
+    def forward(self: TransformerBlock, x: torch.FloatTensor) -> torch.FloatTensor:
         # calculate attention vectors, add residual and normalize
-        attn = self.model["attn_dropout"](
-            self.model["attn"](q=x, k=x, v=x, masks=masks)
-        )
+        attn = self.model["attn_dropout"](self.model["attn"](q=x, k=x, v=x))
         attn = self.model["norm_attn"](x + attn)
         # shape: [batch_size, context_length, model_dim]
 
