@@ -12,7 +12,20 @@ __all__ = [
 ]
 
 
-class TransformerParams(pyd.BaseModel, frozen=True, protected_namespaces=()):
+class MaskableParams(pyd.BaseModel, frozen=True, protected_namespaces=()):
+    # self-attention level params
+    mask: bool | None = None
+
+    @property
+    def masked(self: MaskableParams) -> MaskableParams:
+        return self.__class__(**self.model_dump(exclude="mask"), mask=True)
+
+    @property
+    def unmasked(self: MaskableParams) -> MaskableParams:
+        return self.__class__(**self.model_dump(exclude="mask"), mask=False)
+
+
+class TransformerParams(MaskableParams):
     """TODO: docstring"""
 
     # transformer level params
@@ -32,10 +45,11 @@ class TransformerParams(pyd.BaseModel, frozen=True, protected_namespaces=()):
             model_dim=self.model_dim,
             feed_forward_dim=self.feed_forward_dim,
             num_heads=self.num_heads,
+            mask=self.mask,
         )
 
 
-class TransformerBlockParams(pyd.BaseModel, frozen=True, protected_namespaces=()):
+class TransformerBlockParams(MaskableParams):
     """TODO: docstring"""
 
     # transformer level params
@@ -50,11 +64,11 @@ class TransformerBlockParams(pyd.BaseModel, frozen=True, protected_namespaces=()
         self: MultiHeadSelfAttentionParams,
     ) -> MultiHeadSelfAttentionParams:
         return MultiHeadSelfAttentionParams(
-            model_dim=self.model_dim, num_heads=self.num_heads
+            model_dim=self.model_dim, num_heads=self.num_heads, mask=self.mask
         )
 
 
-class MultiHeadSelfAttentionParams(pyd.BaseModel, frozen=True, protected_namespaces=()):
+class MultiHeadSelfAttentionParams(MaskableParams):
     """TODO: docstring"""
 
     # transformer level params
@@ -66,10 +80,12 @@ class MultiHeadSelfAttentionParams(pyd.BaseModel, frozen=True, protected_namespa
     def attention_params(
         self: SelfAttentionParams,
     ) -> SelfAttentionParams:
-        return SelfAttentionParams(model_dim=self.model_dim, num_heads=self.num_heads)
+        return SelfAttentionParams(
+            model_dim=self.model_dim, num_heads=self.num_heads, mask=self.mask
+        )
 
 
-class SelfAttentionParams(pyd.BaseModel, frozen=True, protected_namespaces=()):
+class SelfAttentionParams(MaskableParams):
     """TODO: docstring"""
 
     # transformer level params

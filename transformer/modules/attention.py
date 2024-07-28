@@ -19,18 +19,14 @@ class MultiHeadSelfAttention(LightningModule):
     """TODO: docstring"""
 
     def __init__(
-        self: MultiHeadSelfAttention,
-        params: MultiHeadSelfAttentionParams = MultiHeadSelfAttentionParams(),
-        *,
-        mask: bool = True,
+        self: MultiHeadSelfAttention, params: MultiHeadSelfAttentionParams
     ) -> MultiHeadSelfAttention:
         super().__init__()
         self.params: MultiHeadSelfAttentionParams = params
-        self.mask: bool = mask
         self.model: nn.ModuleDict = nn.ModuleDict(
             {
                 "heads": nn.ModuleList(
-                    SelfAttention(self.params.attention_params, mask=mask)
+                    SelfAttention(self.params.attention_params)
                     for _ in range(self.params.num_heads)
                 ),
                 "proj": nn.Linear(self.params.model_dim, self.params.model_dim),
@@ -58,15 +54,9 @@ class MultiHeadSelfAttention(LightningModule):
 class SelfAttention(LightningModule):
     """TODO: docstring"""
 
-    def __init__(
-        self: SelfAttention,
-        params: SelfAttentionParams = SelfAttentionParams(),
-        *,
-        mask: bool = True,
-    ) -> SelfAttention:
+    def __init__(self: SelfAttention, params: SelfAttentionParams) -> SelfAttention:
         super().__init__()
         self.params: SelfAttentionParams = params
-        self.mask: bool = mask
         self.model: nn.ModuleDict = nn.ModuleDict(
             {
                 "query_proj": nn.Linear(
@@ -86,7 +76,7 @@ class SelfAttention(LightningModule):
         q: torch.FloatTensor,
         k: torch.FloatTensor,
         v: torch.FloatTensor,
-        masks: torch.LongTensor | None = None,
+        masks: torch.LongTensor,
     ) -> torch.FloatTensor:
         # project inputs onto weight matrices
         q = self.model["query_proj"](q)
@@ -104,12 +94,12 @@ class SelfAttention(LightningModule):
         # shape: [batch_size, context_length, context_length]
 
         # upper-diagonal lookahead mask before softmax to prevent looking into future
-        if self.mask and masks is not None:
-            attn_mask |= torch.triu(torch.ones_like(scores), diagonal=1)
+        if self.params.mask:
+            attn_mask |= torch.triu(torch.ones_like(scores, dtype=int), diagonal=1)
             # shape: [batch_size, context_length, context_length]
 
         # apply mask(s)
-        scores.masked_fill_(attn_mask, -EPS)
+        scores.masked_fill_(attn_mask.bool(), -EPS)
 
         # compute scores
         return nn.functional.softmax(scores, dim=-1) @ v

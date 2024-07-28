@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from operator import itemgetter
 
-from transformer.modules.transformers.decoder_only import Transformer
+from transformer.modules.transformers.decoder_only import DecoderTransformer
 from transformer.modules.embedding import InputEmbedding
 from transformer.dataloaders.teacher_forcing import TeacherForcingDataModule
 from transformer.params import TransformerParams
@@ -18,8 +18,8 @@ import pandas as pd
 
 class SamplingTransformer(LightningModule):
     def __init__(
-        self: SamplingTransformer, 
-        config: TransformerParams, 
+        self: SamplingTransformer,
+        config: TransformerParams,
         tokenizer: PreTrainedTokenizer,
     ) -> SamplingTransformer:
         super().__init__()
@@ -29,7 +29,7 @@ class SamplingTransformer(LightningModule):
             {
                 "embedding": InputEmbedding(len(tokenizer), config.model_dim),
                 "dropout": nn.Dropout(0.1),
-                "transformer": Transformer(config),
+                "decoder": DecoderTransformer(config),
             }
         )
 
@@ -40,7 +40,7 @@ class SamplingTransformer(LightningModule):
 
         # create input embeddings for tokens and pass through transformer
         emb = self.model["dropout"](self.model["embedding"](ids))
-        hidden = self.model["transformer"](emb, masks=masks)
+        hidden = self.model["decoder"](emb, masks=masks)
         # emb/hidden shape: [batch_size, context_length, model_dim]
 
         # project back to vocabulary size reusing embedding weight matrix (weight-tied)
@@ -52,78 +52,82 @@ class SamplingTransformer(LightningModule):
         # TODO: use the same learning rate schedule as Attention Is All You Need
         return torch.optim.SGD(self.model.parameters(), lr=3e-4)
 
+    def step(
+        self: SamplingTransformer, batch: tuple[torch.LongTensor, ...], *, stage: str
+    ) -> torch.FloatTensor:
+        ids, targets, masks = batch
+        preds = self(ids, masks)
+        loss = nn.functional.nll_loss(preds.flatten(end_dim=1), targets.flatten())
+        self.log(f"{stage}_loss", loss, prog_bar=True, on_step=False, on_epoch=True)
+        return loss
+
     def training_step(
-        self: SamplingTransformer, 
-        batch: tuple[torch.LongTensor, ...],
+        self: SamplingTransformer, batch: tuple[torch.LongTensor, ...]
     ) -> torch.FloatTensor:
-        ids, targets, masks = batch
-        preds = self(ids, masks)
-        loss = nn.functional.nll_loss(preds.flatten(end_dim=1), targets.flatten())
-        self.log("train_loss", loss, prog_bar=True, on_step=False, on_epoch=True)
-        return loss
-    
+        return self.step(batch, stage="train")
+
     def validation_step(
-        self: SamplingTransformer, 
-        batch: tuple[torch.LongTensor, ...],
+        self: SamplingTransformer, batch: tuple[torch.LongTensor, ...]
     ) -> torch.FloatTensor:
-        ids, targets, masks = batch
-        preds = self(ids, masks)
-        loss = nn.functional.nll_loss(preds.flatten(end_dim=1), targets.flatten())
-        self.log("val_loss", loss, prog_bar=True, on_step=False, on_epoch=True)
-        return loss
-    
+        return self.step(batch, stage="val")
+
     def test_step(
-        self: SamplingTransformer, 
+        self: SamplingTransformer,
         batch: tuple[torch.LongTensor, ...],
     ) -> torch.FloatTensor:
-        ids, targets, masks = batch
-        preds = self(ids, masks)
-        loss = nn.functional.nll_loss(preds.flatten(end_dim=1), targets.flatten())
-        self.log("test_loss", loss, prog_bar=True, on_step=False, on_epoch=True)
-        return loss
-    
+        return self.step(batch, stage="test")
+
     def predict_step(
-        self: SamplingTransformer, 
+        self: SamplingTransformer,
         batch: tuple[torch.LongTensor, ...],
     ) -> torch.FloatTensor:
         ids, targets, masks = batch
         preds = self(ids, masks).argmax(axis=-1)
         return list(
             zip(
-                *[self.tokenizer.batch_decode(
-                    outputs, 
-                    skip_special_tokens=True, 
-                    clean_up_tokenization_spaces=True
-                )
-                for outputs in (preds, targets)]
+                *[
+                    self.tokenizer.batch_decode(
+                        outputs,
+                        skip_special_tokens=True,
+                        clean_up_tokenization_spaces=True,
+                    )
+                    for outputs in (preds, targets)
+                ]
             )
         )
 
     def generate(self, string: str | None = None) -> str:
         # encode input
         tokens = self.tokenizer(
-            string or "", 
-            add_special_tokens=True, 
-            padding="max_length", 
+            string or "",
+            add_special_tokens=True,
+            padding="max_length",
             max_length=(self.config.context_length + 1),
             return_tensors="pt",
         )
         ids, mask = itemgetter("input_ids", "attention_mask")(tokens)
-        ids, mask = ids[:, :-1], mask[:, :-1]  # shift input and mask to skip <eos> token
+        ids, mask = (
+            ids[:, :-1],
+            mask[:, :-1],
+        )  # shift input and mask to skip <eos> token
         length = mask.sum()
 
         i = 0
-        while i < self.config.context_length - length and ids[0, -1] != self.tokenizer.eos_token_id:
+        while (
+            i < self.config.context_length - length
+            and ids[0, -1] != self.tokenizer.eos_token_id
+        ):
             # make prediction
             pred = self(ids, mask)
 
             # select first valid ID from 4 most likely IDs for last output
             next_id = [
-                t 
-                for t in pred[0, -1].topk(4, dim=-1).indices
-                if t not in (
-                    self.tokenizer.bos_token_id, 
-                    self.tokenizer.pad_token_id, 
+                token_id
+                for token_id in pred[0, -1].topk(4, dim=-1).indices
+                if token_id
+                not in (
+                    self.tokenizer.bos_token_id,
+                    self.tokenizer.pad_token_id,
                     self.tokenizer.unk_token_id,
                 )
             ][0]
@@ -138,8 +142,8 @@ class SamplingTransformer(LightningModule):
 
         # decode IDs and untokenize back to string
         output = self.tokenizer.decode(
-            ids[0].tolist(), 
-            skip_special_tokens=True, 
+            ids[0].tolist(),
+            skip_special_tokens=True,
             clean_up_tokenization_spaces=True,
         )
 
@@ -188,7 +192,11 @@ if __name__ == "__main__":
     )
 
     # train the model
-    trainer = Trainer(max_epochs=1000, callbacks=EarlyStopping(monitor="val_loss", mode="min", patience=5), accelerator="cpu")
+    trainer = Trainer(
+        max_epochs=1000,
+        callbacks=EarlyStopping(monitor="val_loss", mode="min", patience=5),
+        accelerator="cpu",
+    )
     trainer.fit(model=model, datamodule=datamodule)
 
     # calculate test metrics
