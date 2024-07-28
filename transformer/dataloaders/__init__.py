@@ -1,3 +1,3 @@
-from transformer.dataloaders import teacher_forcing
+from transformer.dataloaders import inference, seq2seq, teacher_forcing
 
-__all__ = ["teacher_forcing"]
+__all__ = ["inference", "seq2seq", "teacher_forcing"]
