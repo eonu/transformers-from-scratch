@@ -57,17 +57,21 @@ class InferenceDataModule(LightningDataModule):
         # generate train/val/test set splits
         splits: dict[Literal["train", "val", "test"], Split] = defaultdict(Split)
         train, val, test = itemgetter("train", "val", "test")(splits)
+        stratify = y if y.dtype == torch.long else None
         train.X, X, train.y, y = train_test_split(
             X,
             y,
             test_size=(self.val_size + self.test_size),
             random_state=self.random_state,
+            stratify=stratify
         )
+        stratify = y if y.dtype == torch.long else None
         val.X, test.X, val.y, test.y = train_test_split(
             X,
             y,
             test_size=(self.test_size / (self.val_size + self.test_size)),
             random_state=self.random_state,
+            stratify=stratify
         )
 
         for split, split_data in splits.items():
