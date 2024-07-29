@@ -11,7 +11,9 @@ __all__ = ["InputEmbedding", "PositionalEncoding"]
 
 
 class InputEmbedding(LightningModule):
-    def __init__(self: t.Self, vocab_size: pyd.PositiveInt, embedding_size: pyd.PositiveInt) -> None:
+    def __init__(
+        self: t.Self, vocab_size: pyd.PositiveInt, embedding_size: pyd.PositiveInt
+    ) -> None:
         super().__init__()
         self.embedding_size = embedding_size
         self.word_embedder = nn.Embedding(vocab_size, embedding_size)

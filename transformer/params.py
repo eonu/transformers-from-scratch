@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import typing as t
+
 import pydantic as pyd
 
 __all__ = [
@@ -17,11 +19,11 @@ class MaskableParams(pyd.BaseModel, frozen=True, protected_namespaces=()):
     mask: bool | None = None
 
     @property
-    def masked(self: MaskableParams) -> MaskableParams:
+    def masked(self: t.Self) -> MaskableParams:
         return self.__class__(**self.model_dump(exclude="mask"), mask=True)
 
     @property
-    def unmasked(self: MaskableParams) -> MaskableParams:
+    def unmasked(self: t.Self) -> MaskableParams:
         return self.__class__(**self.model_dump(exclude="mask"), mask=False)
 
 
@@ -38,9 +40,7 @@ class TransformerParams(MaskableParams):
     num_heads: pyd.PositiveInt = 8
 
     @property
-    def block_params(
-        self: TransformerBlockParams,
-    ) -> TransformerBlockParams:
+    def block_params(self: t.Self) -> TransformerBlockParams:
         return TransformerBlockParams(
             model_dim=self.model_dim,
             feed_forward_dim=self.feed_forward_dim,
@@ -60,9 +60,7 @@ class TransformerBlockParams(MaskableParams):
     num_heads: pyd.PositiveInt = 8
 
     @property
-    def multi_head_params(
-        self: MultiHeadSelfAttentionParams,
-    ) -> MultiHeadSelfAttentionParams:
+    def multi_head_params(self: t.Self) -> MultiHeadSelfAttentionParams:
         return MultiHeadSelfAttentionParams(
             model_dim=self.model_dim, num_heads=self.num_heads, mask=self.mask
         )
@@ -77,9 +75,7 @@ class MultiHeadSelfAttentionParams(MaskableParams):
     num_heads: pyd.PositiveInt = 8
 
     @property
-    def attention_params(
-        self: SelfAttentionParams,
-    ) -> SelfAttentionParams:
+    def attention_params(self: t.Self) -> SelfAttentionParams:
         return SelfAttentionParams(
             model_dim=self.model_dim, num_heads=self.num_heads, mask=self.mask
         )
@@ -94,9 +90,9 @@ class SelfAttentionParams(MaskableParams):
     num_heads: pyd.PositiveInt = 8
 
     @property
-    def key_dim(self: SelfAttentionParams) -> int:
+    def key_dim(self: t.Self) -> int:
         return self.model_dim // self.num_heads
 
     @property
-    def value_dim(self: SelfAttentionParams) -> int:
+    def value_dim(self: t.Self) -> int:
         return self.model_dim // self.num_heads

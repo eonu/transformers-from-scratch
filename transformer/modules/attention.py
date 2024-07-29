@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import typing as t
 
 import torch
 from torch import nn
@@ -18,9 +19,7 @@ EPS = torch.finfo().eps
 class MultiHeadSelfAttention(LightningModule):
     """TODO: docstring"""
 
-    def __init__(
-        self: MultiHeadSelfAttention, params: MultiHeadSelfAttentionParams
-    ) -> MultiHeadSelfAttention:
+    def __init__(self: t.Self, params: MultiHeadSelfAttentionParams) -> None:
         super().__init__()
         self.params: MultiHeadSelfAttentionParams = params
         self.model: nn.ModuleDict = nn.ModuleDict(
@@ -34,7 +33,7 @@ class MultiHeadSelfAttention(LightningModule):
         )
 
     def forward(
-        self: MultiHeadSelfAttention,
+        self: t.Self,
         q: torch.FloatTensor,
         k: torch.FloatTensor,
         v: torch.FloatTensor,
@@ -54,7 +53,7 @@ class MultiHeadSelfAttention(LightningModule):
 class SelfAttention(LightningModule):
     """TODO: docstring"""
 
-    def __init__(self: SelfAttention, params: SelfAttentionParams) -> SelfAttention:
+    def __init__(self: t.Self, params: SelfAttentionParams) -> None:
         super().__init__()
         self.params: SelfAttentionParams = params
         self.model: nn.ModuleDict = nn.ModuleDict(
@@ -72,7 +71,7 @@ class SelfAttention(LightningModule):
         )
 
     def forward(
-        self: MultiHeadSelfAttention,
+        self: t.Self,
         q: torch.FloatTensor,
         k: torch.FloatTensor,
         v: torch.FloatTensor,

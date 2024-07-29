@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import typing as t
+
 import torch
 from torch import nn
 from lightning import LightningModule
@@ -14,9 +16,7 @@ class TransformerBlock(LightningModule):
     """TODO: docstring
     NOTE: Only used for encoder-only/decoder-only, encoder-decoder has its own block"""
 
-    def __init__(
-        self: TransformerBlock, params: TransformerBlockParams
-    ) -> TransformerBlock:
+    def __init__(self: t.Self, params: TransformerBlockParams) -> None:
         super().__init__()
         self.params: TransformerBlockParams = params
         self.model: nn.ModuleDict = nn.ModuleDict(
@@ -47,15 +47,15 @@ class TransformerBlock(LightningModule):
         )
 
     @property
-    def attn(self: TransformerBlock) -> nn.ModuleDict:
+    def attn(self: t.Self) -> nn.ModuleDict:
         return self.model["attn"]
 
     @property
-    def ffnn(self: TransformerBlock) -> nn.ModuleDict:
+    def ffnn(self: t.Self) -> nn.ModuleDict:
         return self.model["ffnn"]
 
     def forward(
-        self: TransformerBlock, x: torch.FloatTensor, masks: torch.LongTensor
+        self: t.Self, x: torch.FloatTensor, masks: torch.LongTensor
     ) -> torch.FloatTensor:
         # calculate attention vectors, add residual and normalize
         attn = self.attn["dropout"](self.attn["attn"](q=x, k=x, v=x, masks=masks))
