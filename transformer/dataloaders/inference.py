@@ -117,23 +117,23 @@ class InferenceDataModule(LightningDataModule):
 class InferenceDataset(Dataset):
     def __init__(
         self: t.Self,
-        input_ids: torch.LongTensor,
+        ids: torch.LongTensor,
         outputs: torch.Tensor,
         masks: torch.LongTensor,
     ) -> None:
         super().__init__()
-        self.input_ids = input_ids
+        self.ids = ids
         self.outputs = outputs
         self.masks = masks
 
     def __len__(self: t.Self) -> int:
-        return len(self.input_ids)
+        return len(self.ids)
 
     def __getitem__(
         self: t.Self, index: int
     ) -> tuple[torch.LongTensor, torch.Tensor, torch.LongTensor]:
         return (
-            self.input_ids[index],
+            self.ids[index],
             self.outputs[index],
             self.masks[index],
         )

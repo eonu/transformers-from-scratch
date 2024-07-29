@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import typing as t
+
 import torch
 from torch import nn
 from lightning import LightningModule
@@ -13,7 +15,7 @@ __all__ = ["BaseTransformer"]
 class BaseTransformer(LightningModule):
     """TODO: docstring"""
 
-    def __init__(self: BaseTransformer, params: TransformerParams) -> BaseTransformer:
+    def __init__(self:t.Self, params: TransformerParams) -> None:
         super().__init__()
         self.params: TransformerParams = params
         self.model = nn.ModuleList(
@@ -24,7 +26,7 @@ class BaseTransformer(LightningModule):
         )
 
     def forward(
-        self: BaseTransformer, x: torch.FloatTensor, masks: torch.LongTensor
+        self: t.Self, x: torch.FloatTensor, masks: torch.LongTensor
     ) -> torch.FloatTensor:
         for block in self.model:
             x = block(x=x, masks=masks)

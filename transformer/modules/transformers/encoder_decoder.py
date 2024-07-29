@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import typing as t
+
 import torch
 from torch import nn
 from lightning import LightningModule
@@ -12,9 +14,7 @@ __all__ = ["EncoderDecoderTransformer"]
 
 
 class EncoderDecoderTransformer(LightningModule):
-    def __init__(
-        self: EncoderDecoderTransformer, params: TransformerParams
-    ) -> EncoderDecoderTransformer:
+    def __init__(self: t.Self, params: TransformerParams) -> None:
         super().__init__()
         self.params: TransformerParams = params
         self.model = nn.ModuleDict(
@@ -25,7 +25,7 @@ class EncoderDecoderTransformer(LightningModule):
         )
 
     def forward(
-        self: EncoderDecoderTransformer,
+        self: t.Self,
         inputs: torch.FloatTensor,
         outputs: torch.FloatTensor,
         input_masks: torch.LongTensor,
@@ -38,7 +38,7 @@ class EncoderDecoderTransformer(LightningModule):
 
 
 class DecoderTransformer(LightningModule):
-    def __init__(self: DecoderTransformer, params: TransformerParams):
+    def __init__(self: t.Self, params: TransformerParams) -> None:
         super().__init__()
         self.params: TransformerParams = params
         self.model = nn.ModuleList(
@@ -49,20 +49,18 @@ class DecoderTransformer(LightningModule):
         )
 
     def forward(
-        self: DecoderTransformer,
+        self: t.Self,
         x: torch.FloatTensor,
         enc: torch.FloatTensor,
         masks: torch.LongTensor,
-    ):
+    ) -> None:
         for block in self.model:
             x = block(x, enc, masks=masks)
         return x
 
 
 class DecoderTransformerBlock(LightningModule):
-    def __init__(
-        self: DecoderTransformerBlock, params: TransformerBlockParams
-    ) -> DecoderTransformerBlock:
+    def __init__(self: t.Self, params: TransformerBlockParams) -> None:
         super().__init__()
         self.params: TransformerBlockParams = params
         self.model: nn.ModuleDict = nn.ModuleDict(
@@ -104,19 +102,19 @@ class DecoderTransformerBlock(LightningModule):
         )
 
     @property
-    def masked(self: DecoderTransformerBlock) -> nn.ModuleDict:
+    def masked(self: t.Self) -> nn.ModuleDict:
         return self.model["masked"]
 
     @property
-    def unmasked(self: DecoderTransformerBlock) -> nn.ModuleDict:
+    def unmasked(self: t.Self) -> nn.ModuleDict:
         return self.model["unmasked"]
 
     @property
-    def ffnn(self: DecoderTransformerBlock) -> nn.ModuleDict:
+    def ffnn(self: t.Self) -> nn.ModuleDict:
         return self.model["ffnn"]
 
     def forward(
-        self: DecoderTransformerBlock,
+        self: t.Self,
         x: torch.FloatTensor,
         enc: torch.FloatTensor,
         masks: torch.LongTensor,

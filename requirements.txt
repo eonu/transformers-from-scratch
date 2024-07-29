@@ -7,3 +7,5 @@ scikit-learn
 sentencepiece
 protobuf
 notebook
+tensorboard
+torch_tb_profiler

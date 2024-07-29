@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing as t
 from operator import itemgetter
 
 from transformer.modules.transformers.decoder_only import DecoderTransformer
@@ -15,10 +16,10 @@ from lightning import LightningModule
 
 class CausalLM(LightningModule):
     def __init__(
-        self: CausalLM,
+        self: t.Self,
         config: TransformerParams,
         tokenizer: PreTrainedTokenizer,
-    ) -> CausalLM:
+    ) -> None:
         super().__init__()
         self.config = config
         self.tokenizer = tokenizer
@@ -31,8 +32,8 @@ class CausalLM(LightningModule):
         )
 
     def forward(
-        self: CausalLM, ids: torch.LongTensor, masks: torch.LongTensor
-    ) -> CausalLM:
+        self: t.Self, ids: torch.LongTensor, masks: torch.LongTensor
+    ) -> torch.FloatTensor:
         # ids/masks shape: [batch_size, context_length]
 
         # create input embeddings for tokens and pass through transformer
@@ -45,12 +46,12 @@ class CausalLM(LightningModule):
         return nn.functional.log_softmax(unemb, dim=-1)
         # unemb/output shape: [batch_size, context_length, vocab_size]
 
-    def configure_optimizers(self: CausalLM) -> torch.optim.Optimizer:
+    def configure_optimizers(self: t.Self) -> torch.optim.Optimizer:
         # TODO: use the same learning rate schedule as Attention Is All You Need
         return torch.optim.SGD(self.model.parameters(), lr=3e-4)
 
     def step(
-        self: CausalLM, batch: tuple[torch.LongTensor, ...], *, stage: str
+        self: t.Self, batch: tuple[torch.LongTensor, ...], *, stage: str
     ) -> torch.FloatTensor:
         ids, targets, masks = batch
         # make predictions
@@ -65,12 +66,12 @@ class CausalLM(LightningModule):
         return loss
 
     def training_step(
-        self: CausalLM, batch: tuple[torch.LongTensor, ...]
+        self: t.Self, batch: tuple[torch.LongTensor, ...]
     ) -> torch.FloatTensor:
         return self.step(batch, stage="train")
 
     def validation_step(
-        self: CausalLM, batch: tuple[torch.LongTensor, ...]
+        self: t.Self, batch: tuple[torch.LongTensor, ...]
     ) -> torch.FloatTensor:
         return self.step(batch, stage="val")
 
@@ -81,7 +82,7 @@ class CausalLM(LightningModule):
         return self.step(batch, stage="test")
 
     def predict_step(
-        self: CausalLM,
+        self: t.Self,
         batch: tuple[torch.LongTensor, ...],
     ) -> torch.FloatTensor:
         ids, targets, masks = batch
@@ -99,7 +100,7 @@ class CausalLM(LightningModule):
             )
         )
 
-    def generate(self, string: str | None = None) -> str:
+    def generate(self: t.Self, string: str | None = None) -> str:
         # encode input
         tokens = self.tokenizer(
             string or "",
