@@ -98,7 +98,7 @@ class ClassifierLM(LightningModule):
                     skip_special_tokens=True,
                     clean_up_tokenization_spaces=True,
                 ),
-                preds,
-                targets,
+                preds.tolist(),
+                targets.tolist(),
             )
         )
