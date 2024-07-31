@@ -67,9 +67,9 @@ class Seq2SeqDataModule(LightningDataModule):
                 inputs.append(input_string)
                 outputs.append(output_string)
             # encode input data and obtain IDs and masks
-            input_ids, input_masks = self.encode(inputs)
+            input_ids, input_masks = self.encode_inputs(inputs)
             # encode output data and obtain IDs and masks
-            output_ids, output_masks = self.encode(outputs, is_teacher_forcing=True)
+            output_ids, output_masks = self.encode_outputs(outputs)
             # build dataset
             self.splits[split] = Seq2SeqDataset(
                 input_ids=input_ids,
@@ -102,11 +102,27 @@ class Seq2SeqDataModule(LightningDataModule):
     def predict_dataloader(self: t.Self) -> DataLoader:
         return self.dataloader("test", shuffle=False)
 
-    def encode(
-        self: t.Self, data: list[str], *, is_teacher_forcing: bool = False
+    def encode_inputs(
+        self: t.Self, data: list[str]
+    ) -> tuple[torch.LongTensor, torch.LongTensor]:
+        return self._encode(data, tokenizer=self.input_tokenizer)
+
+    def encode_outputs(
+        self: t.Self, data: list[str]
+    ) -> tuple[torch.LongTensor, torch.LongTensor]:
+        return self._encode(
+            data, tokenizer=self.output_tokenizer, is_teacher_forcing=True
+        )
+
+    def _encode(
+        self: t.Self,
+        data: list[str],
+        *,
+        tokenizer: PreTrainedTokenizer,
+        is_teacher_forcing: bool = False
     ) -> tuple[torch.LongTensor, torch.LongTensor]:
         return itemgetter("input_ids", "attention_mask")(
-            self.tokenizer(
+            tokenizer(
                 data,
                 padding="max_length",
                 truncation=True,

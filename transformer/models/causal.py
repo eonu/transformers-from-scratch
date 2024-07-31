@@ -27,9 +27,13 @@ class CausalLM(LightningModule):
         self.tokenizer = tokenizer
         self.model = nn.ModuleDict(
             {
-                "embedding": nn.Sequential(
-                    InputEmbedding(len(tokenizer), config.model_dim),
-                    nn.Dropout(0.1),
+                "input": nn.ModuleDict(
+                    {
+                        "emb": InputEmbedding(
+                            len(self.input_tokenizer), config.model_dim
+                        ),
+                        "dropout": nn.Dropout(0.1),
+                    }
                 ),
                 "decoder": DecoderTransformer(config),
             }
@@ -41,17 +45,16 @@ class CausalLM(LightningModule):
         # ids/masks shape: [batch_size, context_length]
 
         # create input embeddings for tokens and pass through transformer
-        emb = self.model["embedding"](ids)
+        emb = self.model["input"]["dropout"](self.model["input"]["emb"](ids))
         hidden = self.model["decoder"](emb, masks=masks)
         # emb/hidden shape: [batch_size, context_length, model_dim]
 
         # project back to vocabulary size reusing embedding weight matrix (weight-tied)
-        unemb = self.model["embedding"].unembed(hidden)
+        unemb = self.model["input"]["emb"].unembed(hidden)
         return nn.functional.log_softmax(unemb, dim=-1)
         # unemb/output shape: [batch_size, context_length, vocab_size]
 
     def configure_optimizers(self: t.Self) -> torch.optim.Optimizer:
-        # TODO: use the same learning rate schedule as Attention Is All You Need
         return torch.optim.SGD(self.model.parameters(), lr=3e-4)
 
     def step(
@@ -80,14 +83,12 @@ class CausalLM(LightningModule):
         return self.step(batch, stage="val")
 
     def test_step(
-        self: t.Self,
-        batch: tuple[torch.LongTensor, ...],
+        self: t.Self, batch: tuple[torch.LongTensor, ...]
     ) -> torch.FloatTensor:
         return self.step(batch, stage="test")
 
     def predict_step(
-        self: t.Self,
-        batch: tuple[torch.LongTensor, ...],
+        self: t.Self, batch: tuple[torch.LongTensor, ...]
     ) -> torch.FloatTensor:
         ids, targets, masks = batch
         preds = self(ids, masks).argmax(axis=-1)

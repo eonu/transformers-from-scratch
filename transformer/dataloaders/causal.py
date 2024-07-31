@@ -10,10 +10,10 @@ from transformers import PreTrainedTokenizer
 from sklearn.model_selection import train_test_split
 from lightning import LightningDataModule
 
-__all__ = ["TeacherForcingDataModule", "TeacherForcingDataset"]
+__all__ = ["CausalDataModule", "CausalDataset"]
 
 
-class TeacherForcingDataModule(LightningDataModule):
+class CausalDataModule(LightningDataModule):
     def __init__(
         self: t.Self,
         tokenizer: PreTrainedTokenizer,
@@ -60,7 +60,7 @@ class TeacherForcingDataModule(LightningDataModule):
         for split, split_data in splits.items():
             # encode data and obtain examples, labels and masks
             ids, masks = self.encode(split_data)
-            self.splits[split] = TeacherForcingDataset(
+            self.splits[split] = CausalDataset(
                 input_ids=ids[:, :-1],
                 target_ids=ids[:, 1:],
                 masks=masks[:, :-1],
@@ -103,7 +103,7 @@ class TeacherForcingDataModule(LightningDataModule):
         )
 
 
-class TeacherForcingDataset(Dataset):
+class CausalDataset(Dataset):
     def __init__(
         self: t.Self,
         input_ids: torch.LongTensor,
