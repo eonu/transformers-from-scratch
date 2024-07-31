@@ -13,6 +13,8 @@ import torch
 from torch import nn
 from lightning import LightningModule
 
+__all__ = ["CausalLM"]
+
 
 class CausalLM(LightningModule):
     def __init__(
@@ -25,8 +27,10 @@ class CausalLM(LightningModule):
         self.tokenizer = tokenizer
         self.model = nn.ModuleDict(
             {
-                "embedding": InputEmbedding(len(tokenizer), config.model_dim),
-                "dropout": nn.Dropout(0.1),
+                "embedding": nn.Sequential(
+                    InputEmbedding(len(tokenizer), config.model_dim),
+                    nn.Dropout(0.1),
+                ),
                 "decoder": DecoderTransformer(config),
             }
         )
@@ -37,7 +41,7 @@ class CausalLM(LightningModule):
         # ids/masks shape: [batch_size, context_length]
 
         # create input embeddings for tokens and pass through transformer
-        emb = self.model["dropout"](self.model["embedding"](ids))
+        emb = self.model["embedding"](ids)
         hidden = self.model["decoder"](emb, masks=masks)
         # emb/hidden shape: [batch_size, context_length, model_dim]
 
@@ -53,15 +57,15 @@ class CausalLM(LightningModule):
     def step(
         self: t.Self, batch: tuple[torch.LongTensor, ...], *, stage: str
     ) -> torch.FloatTensor:
-        ids, targets, masks = batch
+        ids, target_ids, masks = batch
         # make predictions
         preds = self(ids, masks)
         # flatten to one long sequence and ignore padding in predictions/targets
         masks = masks.flatten().bool()
         preds = preds.flatten(end_dim=1)[masks]
-        targets = targets.flatten()[masks]
+        target_ids = target_ids.flatten()[masks]
         # calculate loss
-        loss = nn.functional.nll_loss(preds, targets)
+        loss = nn.functional.nll_loss(preds, target_ids)
         self.log(f"{stage}_loss", loss, prog_bar=True, on_step=False, on_epoch=True)
         return loss
 
@@ -76,7 +80,7 @@ class CausalLM(LightningModule):
         return self.step(batch, stage="val")
 
     def test_step(
-        self: CausalLM,
+        self: t.Self,
         batch: tuple[torch.LongTensor, ...],
     ) -> torch.FloatTensor:
         return self.step(batch, stage="test")

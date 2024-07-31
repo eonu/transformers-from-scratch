@@ -8,12 +8,14 @@ from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
 
 
-
 import torch
 import pydantic as pyd
 from torch import nn
 from lightning import LightningModule
 from transformers import PreTrainedTokenizer
+
+__all__ = ["ClassifierLM"]
+
 
 class ClassifierLM(LightningModule):
     def __init__(
@@ -27,8 +29,10 @@ class ClassifierLM(LightningModule):
         self.tokenizer = tokenizer
         self.model = nn.ModuleDict(
             {
-                "embedding": InputEmbedding(len(tokenizer), config.model_dim),
-                "dropout": nn.Dropout(0.1),
+                "embedding": nn.Sequential(
+                    InputEmbedding(len(tokenizer), config.model_dim),
+                    nn.Dropout(0.1),
+                ),
                 "encoder": EncoderTransformer(config),
                 "softmax": nn.Sequential(
                     nn.AvgPool2d(kernel_size=(config.context_length, 1)),
@@ -36,7 +40,7 @@ class ClassifierLM(LightningModule):
                     nn.Linear(config.model_dim, num_classes),
                     nn.Tanh(),
                     nn.LogSoftmax(dim=-1),
-                )
+                ),
             }
         )
 
@@ -46,7 +50,7 @@ class ClassifierLM(LightningModule):
         # ids/masks shape: [batch_size, context_length]
 
         # create input embeddings for tokens and pass through transformer
-        emb = self.model["dropout"](self.model["embedding"](ids))
+        emb = self.model["embedding"](ids)
         hidden = self.model["encoder"](emb, masks=masks)
         # emb/hidden shape: [batch_size, context_length, model_dim]
 

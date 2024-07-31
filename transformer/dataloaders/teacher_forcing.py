@@ -36,7 +36,7 @@ class TeacherForcingDataModule(LightningDataModule):
         self.persistent_workers = persistent_workers
         self.limit = limit
         self.random_state = random_state
-        self.data = []
+        self.data: list[str] = []
         self.splits: dict[t.Literal["train", "val", "test"], Dataset] = {}
 
     @abc.abstractmethod
@@ -59,7 +59,7 @@ class TeacherForcingDataModule(LightningDataModule):
 
         for split, split_data in splits.items():
             # encode data and obtain examples, labels and masks
-            ids, masks = self._encode(split_data)
+            ids, masks = self.encode(split_data)
             self.splits[split] = TeacherForcingDataset(
                 input_ids=ids[:, :-1],
                 target_ids=ids[:, 1:],
@@ -89,7 +89,7 @@ class TeacherForcingDataModule(LightningDataModule):
     def predict_dataloader(self: t.Self) -> DataLoader:
         return self.dataloader("test", shuffle=False)
 
-    def _encode(
+    def encode(
         self: t.Self, data: list[str]
     ) -> tuple[torch.LongTensor, torch.LongTensor]:
         return itemgetter("input_ids", "attention_mask")(
@@ -118,11 +118,5 @@ class TeacherForcingDataset(Dataset):
     def __len__(self: t.Self) -> int:
         return len(self.input_ids)
 
-    def __getitem__(
-        self: t.Self, index: int
-    ) -> tuple[torch.LongTensor, torch.LongTensor, torch.LongTensor]:
-        return (
-            self.input_ids[index],
-            self.target_ids[index],
-            self.masks[index],
-        )
+    def __getitem__(self: t.Self, index: int) -> tuple[torch.LongTensor, ...]:
+        return self.input_ids[index], self.target_ids[index], self.masks[index]

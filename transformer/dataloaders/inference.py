@@ -19,7 +19,7 @@ __all__ = ["InferenceDataModule", "InferenceDataset"]
 @dataclass
 class Split:
     X: list[str] | None = None
-    y: torch.LongTensor | None = None
+    y: torch.Tensor | None = None
 
 
 class InferenceDataModule(LightningDataModule):
@@ -63,7 +63,7 @@ class InferenceDataModule(LightningDataModule):
             y,
             test_size=(self.val_size + self.test_size),
             random_state=self.random_state,
-            stratify=stratify
+            stratify=stratify,
         )
         stratify = y if y.dtype == torch.long else None
         val.X, test.X, val.y, test.y = train_test_split(
@@ -71,12 +71,12 @@ class InferenceDataModule(LightningDataModule):
             y,
             test_size=(self.test_size / (self.val_size + self.test_size)),
             random_state=self.random_state,
-            stratify=stratify
+            stratify=stratify,
         )
 
         for split, split_data in splits.items():
             # encode data and obtain examples, labels and masks
-            ids, masks = self._encode(split_data.X)
+            ids, masks = self.encode(split_data.X)
             self.splits[split] = InferenceDataset(
                 ids=ids, outputs=split_data.y, masks=masks
             )
@@ -104,7 +104,7 @@ class InferenceDataModule(LightningDataModule):
     def predict_dataloader(self: t.Self) -> DataLoader:
         return self.dataloader("test", shuffle=False)
 
-    def _encode(
+    def encode(
         self: t.Self, data: list[str]
     ) -> tuple[torch.LongTensor, torch.LongTensor]:
         return itemgetter("input_ids", "attention_mask")(
@@ -112,7 +112,7 @@ class InferenceDataModule(LightningDataModule):
                 data,
                 padding="max_length",
                 truncation=True,
-                max_length=(self.context_length + 1),
+                max_length=self.context_length,
                 return_tensors="pt",
             )
         )
@@ -133,11 +133,5 @@ class InferenceDataset(Dataset):
     def __len__(self: t.Self) -> int:
         return len(self.ids)
 
-    def __getitem__(
-        self: t.Self, index: int
-    ) -> tuple[torch.LongTensor, torch.Tensor, torch.LongTensor]:
-        return (
-            self.ids[index],
-            self.outputs[index],
-            self.masks[index],
-        )
+    def __getitem__(self: t.Self, index: int) -> tuple[torch.LongTensor, ...]:
+        return self.ids[index], self.outputs[index], self.masks[index]
