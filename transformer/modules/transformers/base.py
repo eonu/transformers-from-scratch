@@ -13,9 +13,7 @@ __all__ = ["BaseTransformer"]
 
 
 class BaseTransformer(LightningModule):
-    """TODO: docstring"""
-
-    def __init__(self:t.Self, params: TransformerParams) -> None:
+    def __init__(self: t.Self, params: TransformerParams) -> None:
         super().__init__()
         self.params: TransformerParams = params
         self.model = nn.ModuleList(

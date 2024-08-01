@@ -13,9 +13,6 @@ __all__ = ["TransformerBlock"]
 
 
 class TransformerBlock(LightningModule):
-    """TODO: docstring
-    NOTE: Only used for encoder-only/decoder-only, encoder-decoder has its own block"""
-
     def __init__(self: t.Self, params: TransformerBlockParams) -> None:
         super().__init__()
         self.params: TransformerBlockParams = params

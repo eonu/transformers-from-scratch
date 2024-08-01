@@ -1,5 +1,3 @@
-"""TODO: docstring"""
-
 from __future__ import annotations
 
 import typing as t
@@ -28,8 +26,6 @@ class MaskableParams(pyd.BaseModel, frozen=True, protected_namespaces=()):
 
 
 class TransformerParams(MaskableParams):
-    """TODO: docstring"""
-
     # transformer level params
     context_length: pyd.PositiveInt
     num_blocks: pyd.PositiveInt = 6
@@ -50,14 +46,12 @@ class TransformerParams(MaskableParams):
 
 
 class TransformerBlockParams(MaskableParams):
-    """TODO: docstring"""
-
     # transformer level params
-    model_dim: pyd.PositiveInt = 512
+    model_dim: pyd.PositiveInt
     # transformer block level params
-    feed_forward_dim: pyd.PositiveInt = 2_048
+    feed_forward_dim: pyd.PositiveInt
     # multi-head self-attention level params
-    num_heads: pyd.PositiveInt = 8
+    num_heads: pyd.PositiveInt
 
     @property
     def multi_head_params(self: t.Self) -> MultiHeadSelfAttentionParams:
@@ -67,12 +61,10 @@ class TransformerBlockParams(MaskableParams):
 
 
 class MultiHeadSelfAttentionParams(MaskableParams):
-    """TODO: docstring"""
-
     # transformer level params
-    model_dim: pyd.PositiveInt = 512
+    model_dim: pyd.PositiveInt
     # multi-head self-attention level params
-    num_heads: pyd.PositiveInt = 8
+    num_heads: pyd.PositiveInt
 
     @property
     def attention_params(self: t.Self) -> SelfAttentionParams:
@@ -82,12 +74,10 @@ class MultiHeadSelfAttentionParams(MaskableParams):
 
 
 class SelfAttentionParams(MaskableParams):
-    """TODO: docstring"""
-
     # transformer level params
-    model_dim: pyd.PositiveInt = 512
+    model_dim: pyd.PositiveInt
     # multi-head self-attention level params
-    num_heads: pyd.PositiveInt = 8
+    num_heads: pyd.PositiveInt
 
     @property
     def key_dim(self: t.Self) -> int:

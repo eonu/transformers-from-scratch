@@ -1,5 +1,3 @@
-"""TODO: docstring"""
-
 from __future__ import annotations
 
 import math
@@ -17,8 +15,6 @@ EPS = torch.finfo().eps
 
 
 class MultiHeadSelfAttention(LightningModule):
-    """TODO: docstring"""
-
     def __init__(self: t.Self, params: MultiHeadSelfAttentionParams) -> None:
         super().__init__()
         self.params: MultiHeadSelfAttentionParams = params
@@ -51,8 +47,6 @@ class MultiHeadSelfAttention(LightningModule):
 
 
 class SelfAttention(LightningModule):
-    """TODO: docstring"""
-
     def __init__(self: t.Self, params: SelfAttentionParams) -> None:
         super().__init__()
         self.params: SelfAttentionParams = params

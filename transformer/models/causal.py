@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing as t
-from operator import itemgetter
 
 from transformer.models.base import BaseLM
 from transformer.modules.transformers.decoder_only import DecoderTransformer
@@ -103,60 +102,3 @@ class CausalLM(BaseLM):
                 ]
             )
         )
-
-    def generate(self: t.Self, string: str | None = None) -> str:
-        # encode input
-        tokens = self.tokenizer(
-            string or "",
-            add_special_tokens=True,
-            padding="max_length",
-            max_length=(self.config.context_length + 1),
-            return_tensors="pt",
-        )
-        ids, mask = itemgetter("input_ids", "attention_mask")(tokens)
-        ids, mask = (
-            ids[:, :-1],
-            mask[:, :-1],
-        )  # shift input and mask to skip <eos> token
-        length = mask.sum()
-
-        i = 0
-        while (
-            i < self.config.context_length - length
-            and ids[0, -1] != self.tokenizer.eos_token_id
-        ):
-            # make prediction
-            pred = self(ids, mask)
-
-            # select first valid ID from 4 most likely IDs for last output
-            next_id = [
-                token_id
-                for token_id in pred[0, -1].topk(4, dim=-1).indices
-                if token_id
-                not in (
-                    self.tokenizer.bos_token_id,
-                    self.tokenizer.pad_token_id,
-                    self.tokenizer.unk_token_id,
-                )
-            ][0]
-
-            # extend ids and mask tensors with new prediction
-            ids[0, :-1] = ids[0, 1:].clone()
-            ids[0, -1] = next_id
-            mask[0, :-1] = mask[0, 1:].clone()
-            mask[0, -1] = 1
-
-            i += 1
-
-        # decode IDs and untokenize back to string
-        output = self.tokenizer.decode(
-            ids[0].tolist(),
-            skip_special_tokens=True,
-            clean_up_tokenization_spaces=True,
-        )
-
-        if ids[0, -1] != self.tokenizer.eos_token_id:
-            # didn't terminate, add ellipsis at end to indicate
-            output = f"{output}..."
-
-        return output

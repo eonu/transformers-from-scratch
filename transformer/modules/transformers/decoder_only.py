@@ -9,7 +9,5 @@ __all__ = ["DecoderTransformer"]
 
 
 class DecoderTransformer(BaseTransformer):
-    """TODO: docstring"""
-
     def __init__(self: t.Self, params: TransformerParams) -> None:
         super().__init__(params=params.masked)
