@@ -8,7 +8,7 @@
     <a href="#restrictions">Restrictions</a> ·
     <a href="#details">Details</a> ·
     <a href="#datasets">Datasets</a> ·
-    <a href="#models">Models</a> ·
+    <a href="#models-and-examples">Models and examples</a> ·
     <a href="#repository-structure">Repository Structure</a> ·
     <a href="#installation">Installation</a> ·
     <a href="#running">Running</a> ·
@@ -102,7 +102,7 @@ The following datasets were used to test the above transformer implementations o
 - [Reddit r/FloridaMan](https://www.kaggle.com/datasets/bcruise/reddit-rfloridaman): News headlines about various (often funny and irrational) actions performed by Florida men and women.
 - [Europarl](https://www.kaggle.com/datasets/nltkdata/europarl): Transcriptions of European Parliament proceedings between 1996-2006, collected in 11 languages.
 
-## Models
+## Models and examples
 
 ### Encoder-only models
 
@@ -127,7 +127,7 @@ The following datasets were used to test the above transformer implementations o
 - [**`notebooks/`**](notebooks/): Notebooks applying the models in [`transformer.models`](transformer/models/) to various datasets.
 - [**`transformer/`**](transformer/): Core package containing the transformer implementations.
   - [**`dataloaders/`**](transformer/dataloaders/): [`LightningDataModule`](https://lightning.ai/docs/pytorch/stable/data/datamodule.html)s for each model in [`transformer.models`](transformer/models/).
-  - [**`models/`**](transformer/models/): Task-specific transformers implemented using [`transformers.modules.transformers`](transformer/modules/transformers/).
+  - [**`models/`**](transformer/models/): Task-specific transformers implemented using [`transformer.modules.transformers`](transformer/modules/transformers/).
   - [**`modules/`**](transformer/modules/): [`LightningModule`](https://lightning.ai/docs/pytorch/stable/common/lightning_module.html)s used within the transformers in [`transformer.models`](transformer/models/).
     - [**`transformers/`**](transformer/modules/transformers/): Encoder-only, decoder-only and encoder-decoder transformer definitions.
     - [`attention.py`](transformer/modules/attention.py): Masked/unmasked multi-head self attention definition.
