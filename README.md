@@ -9,7 +9,7 @@
     <a href="#details">Details</a> ·
     <a href="#datasets">Datasets</a> ·
     <a href="#models-and-examples">Models and examples</a> ·
-    <a href="#repository-structure">Repository Structure</a> ·
+    <a href="#repository-structure">Repository structure</a> ·
     <a href="#installation">Installation</a> ·
     <a href="#running">Running</a> ·
     <a href="#references">References</a>
