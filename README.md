@@ -2,7 +2,7 @@
 
 <p align="center">
   <sup>
-    <a href="#about">About</a> ·
+    <b>Contents</b>:&nbsp;
     <a href="#restrictions">Restrictions</a> ·
     <a href="#details">Details</a> ·
     <a href="#datasets">Datasets</a> ·
@@ -13,8 +13,6 @@
     <a href="#references">References</a>
   </sup>
 </p>
-
-## About
 
 The repository contains a modular Python implementation of the transformer architecture for natural language understanding tasks, according to:
 
