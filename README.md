@@ -38,9 +38,9 @@ While the original architecture implemented in _Attention Is All You Need_ is an
     <tbody>
         <tr>
             <td></td>
-            <td>Encoder-only</td>
-            <td>Decoder-only (causal)</td>
-            <td>Encoder-decoder</td>
+            <td><b>Encoder-only</b></td>
+            <td><b>Decoder-only</b></td>
+            <td><b>Encoder-decoder</b></td>
         </tr>
         <tr>
             <td><b>Diagram</b></td>
