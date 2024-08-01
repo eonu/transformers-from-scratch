@@ -3,7 +3,7 @@
 The repository contains a modular Python implementation of the transformer architecture for natural language understanding tasks, according to:
 
 - The seminal paper _Attention Is All You Need_ by Vaswani et al.<sup><a href="#references">[1]</a></sup> that details the novel attention-based transformer architecture and its application to sequence-to-sequence tasks, demonstrating its effectiveness by achieving state-of-the-art performance in machine translation, surpassing previous LSTM and CNN based neural machine translation architectures.
-- The chapter on _Transformers and Large Language Models_ from _Speech and Language Processing_ by Jurafsky & Martin<sup><a href="#references">[2]</a></sup> which provides a more comprehensive and graphical look into some of the high-level details discussed in _Attention Is All You Need_.
+- The chapter on _Transformers and Large Language Models_ from _Speech and Language Processing_ by Jurafsky & Martin<sup><a href="#references">[2]</a></sup> which provides a more comprehensive and illustrative look into some of the high-level details discussed in _Attention Is All You Need_.
 
 ## Restrictions
 
@@ -13,10 +13,10 @@ This project is implemented using [PyTorch](https://pytorch.org/) and [PyTorch L
 
 As PyTorch provides a number of transformer and attention related layers in its [`torch.nn`](https://pytorch.org/docs/stable/nn.html) submodule, this project explicitly avoids the use of:
 
-- [`torch.nn.MultiHeadAttention`](https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html#torch.nn.MultiheadAttention)
 - [`torch.nn.Transformer`](https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html#torch.nn.Transformer)
 - [`torch.nn.TransformerEncoder`](https://pytorch.org/docs/stable/generated/torch.nn.TransformerEncoder.html#torch.nn.TransformerEncoder)/[`torch.nn.TransformerEncoderLayer`](https://pytorch.org/docs/stable/generated/torch.nn.TransformerEncoderLayer.html#torch.nn.TransformerEncoderLayer)
 - [`torch.nn.TransformerDecoder`](https://pytorch.org/docs/stable/generated/torch.nn.TransformerDecoder.html#torch.nn.TransformerDecoder)/[`torch.nn.TransformerDecoderLayer`](https://pytorch.org/docs/stable/generated/torch.nn.TransformerDecoderLayer.html#torch.nn.TransformerDecoderLayer)
+- [`torch.nn.MultiHeadAttention`](https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html#torch.nn.MultiheadAttention)
 - [`torch.nn.functional.scaled_dot_product_attention`](https://pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html#torch.nn.functional.scaled_dot_product_attention)
 
 All other layers provided by `torch.nn` are allowed, including:
@@ -32,7 +32,7 @@ All other layers provided by `torch.nn` are allowed, including:
 
 ## Details
 
-While the original architecture implemented in _Attention Is All You Need_ is an encoder-decoder based architecture using transformers for neural machine translation which is a sequence-to-sequence learning task, this projected was designed to be more general, allowing for a variety of natural language tasks by implementing encoder-only, decoder-only and encoder-decoder architectures.
+While the original architecture implemented in _Attention Is All You Need_ is an encoder-decoder based architecture using transformers for neural machine translation which is a sequence-to-sequence learning task, this project was designed to be more general, allowing for a variety of natural language tasks by implementing encoder-only, decoder-only and encoder-decoder architectures.
 
 <table>
     <tbody>
@@ -77,9 +77,34 @@ While the original architecture implemented in _Attention Is All You Need_ is an
     </tbody>
 </table>
 
-## Models and datasets
+## Datasets
 
-TODO
+The following datasets were used to test the above transformer implementations on various tasks.
+
+- [arXiv Paper Abstracts](https://www.kaggle.com/datasets/spsayakpaul/arxiv-paper-abstracts): arXiv manuscripts and ther metadata including titles, abstracts and categories.
+- [CommonLit Readability Prize](https://www.kaggle.com/competitions/commonlitreadabilityprize): Literary passages and their associated "readability" score for use in grade 3-12 classrooms.
+- [Reddit r/FloridaMan](https://www.kaggle.com/datasets/bcruise/reddit-rfloridaman): News headlines about various (often funny and irrational) actions performed by Florida men and women.
+- [Europarl](https://www.kaggle.com/datasets/nltkdata/europarl): Transcriptions of European Parliament proceedings between 1996-2006, collected in 11 languages.
+
+## Models
+
+### Encoder-only models
+
+- `ClassifierLM`: A generic transformer-based language model for assigning classes to text.
+  - [`notebooks/arxiv_categorization.ipynb`](notebooks/arxiv_categorization.ipynb) applies this model to the _arXiv Paper Abstracts_ dataset to categorize arXiv manuscripts based on their titles.
+- `RegressorLM`: A generic transformer-based language model for assigning scores to text.
+  - [`notebooks/commonlit_readability.ipynb`](notebooks/commonlit_readability.ipynb) applies this model to the _CommonLit Readability Prize_ dataset to rate the complexity of literary passages for grade 3-12 students.
+
+### Decoder-only models
+
+- `CausalLM`: A generic transformer-based language model for generating text in an autoregressive manner.
+  - [`notebooks/florida_man_generation.ipynb`](notebooks/florida_man.ipynb) applies this model to the _Reddit r/FloridaMan_ dataset to generate humorous news headlines involving the (mis)adventures of Florida men and women.
+
+### Encoder-decoder models
+
+- `Seq2SeqLM`: A generic transformer-based language model for generating output text given an input text.
+  - [`notebooks/arxiv_summarization.ipynb`](notebooks/arxiv_summarization.ipynb) applies this model to the _arxiv Paper Abstracts_ dataset to generate arXiv paper titles by summarizing their corresponding abstracts.
+  - [`notebooks/europarl_translation.ipynb`](notebooks/europarl_translation.ipynb) applies this model to the _Europarl_ dataset to translate transcribed parliamentiary proceedings from French to English.
 
 ## Repository structure
 
