@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing as t
 from operator import itemgetter
 
+from transformer.models.base import BaseLM
 from transformer.modules.transformers.encoder_decoder import EncoderDecoderTransformer
 from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
@@ -11,20 +12,18 @@ from transformers import PreTrainedTokenizer
 
 import torch
 from torch import nn
-from lightning import LightningModule
 
 __all__ = ["Seq2SeqLM"]
 
 
-class Seq2SeqLM(LightningModule):
+class Seq2SeqLM(BaseLM):
     def __init__(
         self: t.Self,
         config: TransformerParams,
         input_tokenizer: PreTrainedTokenizer,
         output_tokenizer: PreTrainedTokenizer,
     ) -> None:
-        super().__init__()
-        self.config = config
+        super().__init__(config=config)
         self.input_tokenizer = input_tokenizer
         self.output_tokenizer = output_tokenizer
         self.model = nn.ModuleDict(

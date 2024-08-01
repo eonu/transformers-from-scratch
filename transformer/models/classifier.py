@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing as t
 from operator import itemgetter
 
+from transformer.models.base import BaseLM
 from transformer.modules.transformers.encoder_only import EncoderTransformer
 from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
@@ -11,21 +12,19 @@ from transformer.params import TransformerParams
 import torch
 import pydantic as pyd
 from torch import nn
-from lightning import LightningModule
 from transformers import PreTrainedTokenizer
 
-__all__ = ["ClassifierLM"]
+__all__ = ["BaseLM"]
 
 
-class ClassifierLM(LightningModule):
+class ClassifierLM(BaseLM):
     def __init__(
         self: t.Self,
         config: TransformerParams,
         tokenizer: PreTrainedTokenizer,
         num_classes: pyd.PositiveInt,
     ) -> None:
-        super().__init__()
-        self.config = config
+        super().__init__(config=config)
         self.tokenizer = tokenizer
         self.model = nn.ModuleDict(
             {

@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing as t
 from operator import itemgetter
 
+from transformer.models.base import BaseLM
 from transformer.modules.transformers.decoder_only import DecoderTransformer
 from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
@@ -11,19 +12,17 @@ from transformers import PreTrainedTokenizer
 
 import torch
 from torch import nn
-from lightning import LightningModule
 
 __all__ = ["CausalLM"]
 
 
-class CausalLM(LightningModule):
+class CausalLM(BaseLM):
     def __init__(
         self: t.Self,
         config: TransformerParams,
         tokenizer: PreTrainedTokenizer,
     ) -> None:
-        super().__init__()
-        self.config = config
+        super().__init__(config=config)
         self.tokenizer = tokenizer
         self.model = nn.ModuleDict(
             {

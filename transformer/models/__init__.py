@@ -1,3 +1,3 @@
-from transformer.models import causal, classifier, regressor, seq2seq
+from transformer.models import base, causal, classifier, regressor, seq2seq
 
-__all__ = ["causal", "classifier", "regressor", "seq2seq"]
+__all__ = ["base", "causal", "classifier", "regressor", "seq2seq"]
