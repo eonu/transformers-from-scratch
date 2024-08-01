@@ -1,4 +1,6 @@
-# Transformer From Scratch
+<p align="center">
+  <h1 align="center">Transformer From Scratch</h1>
+</p>
 
 <p align="center">
   <sup>
