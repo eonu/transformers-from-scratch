@@ -4,7 +4,7 @@ version = "0.1.0"
 license = "MIT"
 authors = ["Edwin Onuonga <ed@eonu.net>"]
 maintainers = ["Edwin Onuonga <ed@eonu.net>"]
-description = "TODO"
+description = "Modular Python implementation of encoder-only, decoder-only and encoder-decoder transformer architectures from scratch, as detailed in Attention Is All You Need. "
 classifiers = []
 keywords = []
 packages = [{ include = "transformer" }]
