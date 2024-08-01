@@ -1,5 +1,21 @@
 # Transformer From Scratch
 
+<p align="center">
+  <sup>
+    <a href="#about">About</a> ·
+    <a href="#restrictions">Restrictions</a> ·
+    <a href="#details">Details</a> ·
+    <a href="#datasets">Datasets</a> ·
+    <a href="#models">Models</a> ·
+    <a href="#repository-structure">Repository Structure</a> ·
+    <a href="#installation">Installation</a> ·
+    <a href="#running">Running</a> ·
+    <a href="#references">References</a>
+  </sup>
+</p>
+
+## About
+
 The repository contains a modular Python implementation of the transformer architecture for natural language understanding tasks, according to:
 
 - The seminal paper _Attention Is All You Need_ by Vaswani et al.<sup><a href="#references">[1]</a></sup> that details the novel attention-based transformer architecture and its application to sequence-to-sequence tasks, demonstrating its effectiveness by achieving state-of-the-art performance in machine translation, surpassing previous LSTM and CNN based neural machine translation architectures.
@@ -117,15 +133,29 @@ The following datasets were used to test the above transformer implementations o
     - [`attention.py`](transformer/modules/attention.py): Masked/unmasked multi-head self attention definition.
     - [`block.py`](transformer/modules/block.py): Transformer block definition.
     - [`embedding.py`](transformer/modules/embedding.py): Positional encoding and input embedding definition.
-  - [`params.py`](transformer/modules/params.py): Hyper-parameters for modules in [`transformer.modules`](transformer/modules/).
+  - [`params.py`](transformer/modules/params.py): Pydantic hyper-parameter classes for modules in [`transformer.modules`](transformer/modules/).
 
 ## Installation
 
-TODO
+The transformer implementation is installable as a local Python package, named `transformer`.
+
+```python
+pip install -e .
+```
+
+To run the notebooks, you will need additional dependencies which can be installed with the `notebooks` extra.
+
+```python
+pip install -e ".[notebooks]"
+```
+
+**This package was developed on Python 3.11.8, so it is recommended to use a virtual environment with the same version.**
 
 ## Running
 
-TODO
+You should be able to simply run the Jupyter notebooks in the [`notebooks/`](notebooks/) folder.
+
+_Beware, they take time – even with a good GPU (especially the sequence-to-sequence ones)!_
 
 ## References
 
@@ -151,3 +181,10 @@ TODO
         </tr>
     </tbody>
 </table>
+
+---
+
+<p align="center">
+  &copy; 2024-2025, Edwin Onuonga - Published under the terms of the <a href="https://opensource.org/licenses/MIT">MIT</a> license.<br/>
+  <em>Authored and maintained by Edwin Onuonga.</em>
+</p>
