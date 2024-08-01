@@ -108,16 +108,16 @@ The following datasets were used to test the above transformer implementations o
 
 ## Repository structure
 
-- **`notebooks/`**: Notebooks applying the models in `transformer.models` to various datasets.
-- **`transformer/`**: Core package containing the transformer implementations.
-  - **`dataloaders/`**: [`LightningDataModule`](https://lightning.ai/docs/pytorch/stable/data/datamodule.html)s for each model in `transformer.models`.
-  - **`models/`**: Task-specific transformers implemented using `transformers.modules.transformers`.
-  - **`modules/`**: [`LightningModule`](https://lightning.ai/docs/pytorch/stable/common/lightning_module.html)s used within the transformers in `transformers.models`.
-    - **`transformers/`**: Encoder-only, decoder-only and encoder-decoder transformer definitions.
-    - `attention.py`: Masked/unmasked multi-head self attention definition.
-    - `block.py`: Transformer block definition.
-    - `embedding.py`: Positional encoding and input embedding definition.
-  - `params.py`: Hyper-parameters for modules in `transformer.modules`.
+- [**`notebooks/`**](notebooks/): Notebooks applying the models in [`transformer.models`](transformer/models/) to various datasets.
+- [**`transformer/`**](transformer/): Core package containing the transformer implementations.
+  - [**`dataloaders/`**](transformer/dataloaders/): [`LightningDataModule`](https://lightning.ai/docs/pytorch/stable/data/datamodule.html)s for each model in `transformer.models`.
+  - [**`models/`**](transformer/models/): Task-specific transformers implemented using [`transformers.modules.transformers`](transformer/modules/transformers/).
+  - [**`modules/`**](transformer/modules/): [`LightningModule`](https://lightning.ai/docs/pytorch/stable/common/lightning_module.html)s used within the transformers in `transformers.models`.
+    - [**`transformers/`**](transformer/modules/transformers/): Encoder-only, decoder-only and encoder-decoder transformer definitions.
+    - [`attention.py`](transformer/modules/attention.py): Masked/unmasked multi-head self attention definition.
+    - [`block.py`](transformer/modules/block.py): Transformer block definition.
+    - [`embedding.py`](transformer/modules/embedding.py): Positional encoding and input embedding definition.
+  - [`params.py`](transformer/modules/params.py): Hyper-parameters for modules in [`transformer.modules`](transformer/modules/).
 
 ## Installation
 
