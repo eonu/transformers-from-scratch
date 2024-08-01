@@ -35,15 +35,13 @@ All other layers provided by `torch.nn` are allowed, including:
 While the original architecture implemented in _Attention Is All You Need_ is an encoder-decoder based architecture using transformers for neural machine translation which is a sequence-to-sequence learning task, this projected was designed to be more general, allowing for a variety of natural language tasks by implementing encoder-only, decoder-only and encoder-decoder architectures.
 
 <table>
-    <thead>
-        <tr>
-            <th></th>
-            <th>Encoder-only</th>
-            <th>Decoder-only (causal)</th>
-            <th>Encoder-decoder</th>
-        </tr>
-    </thead>
     <tbody>
+        <tr>
+            <td></td>
+            <td>Encoder-only</td>
+            <td>Decoder-only (causal)</td>
+            <td>Encoder-decoder</td>
+        </tr>
         <tr>
             <td><b>Diagram</b></td>
             <td><img src="assets/encoder-only.svg"/></td>
@@ -97,27 +95,25 @@ TODO
 
 ## References
 
-<small>
-    <table>
-        <tbody>
-            <tr>
-                <td>[1]</td>
-                <td>
-                <a href="https://dl.acm.org/doi/10.5555/3295222.3295349">Vaswani et al., <b>"Attention Is All You Need"</b>, <em>Proceedings of the 31st International Conference on Neural Information Processing Systems (NIPS 2017)</em>, 6000-6010.</a>
-                </td>
-            </tr>
-            <tr>
-                <td>[2]</td>
-                <td>
-                <a href="https://web.stanford.edu/~jurafsky/slp3/10.pdf">Dan Jurafsky & James H. Martin, <b>"Transformers and Large Language Models"</b>, <em>Speech and Language Processing, 3rd ed. draft (2024)</em>, ch. 10.</a>
-                </td>
-            </tr>
-            <tr>
-                <td>[3]</td>
-                <td>
-                <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY">Andrej Karpathy <b>"Let's build GPT: from scratch, in code, spelled out."</b>, <em>YouTube (2023)</em></a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</small>
+<table>
+    <tbody>
+        <tr>
+            <td>[1]</td>
+            <td>
+            <a href="https://dl.acm.org/doi/10.5555/3295222.3295349">Vaswani et al., <b>"Attention Is All You Need"</b>, <em>Proceedings of the 31st International Conference on Neural Information Processing Systems (NIPS 2017)</em>, 6000-6010.</a>
+            </td>
+        </tr>
+        <tr>
+            <td>[2]</td>
+            <td>
+            <a href="https://web.stanford.edu/~jurafsky/slp3/10.pdf">Dan Jurafsky & James H. Martin, <b>"Transformers and Large Language Models"</b>, <em>Speech and Language Processing, 3rd ed. draft (2024)</em>, ch. 10.</a>
+            </td>
+        </tr>
+        <tr>
+            <td>[3]</td>
+            <td>
+            <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY">Andrej Karpathy <b>"Let's build GPT: from scratch, in code, spelled out."</b>, <em>YouTube (2023)</em></a>
+            </td>
+        </tr>
+    </tbody>
+</table>
