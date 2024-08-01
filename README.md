@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">Transformer From Scratch</h1>
+  <h1 align="center">Transformers From Scratch</h1>
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
   </sup>
 </p>
 
-The repository contains a modular Python implementation of the transformer architecture for natural language understanding tasks, according to:
+The repository contains a modular Python implementation of transformer architectures for natural language understanding tasks, according to:
 
 - The seminal paper _Attention Is All You Need_ by Vaswani et al.<sup><a href="#references">[1]</a></sup> that details the novel attention-based transformer architecture and its application to sequence-to-sequence tasks, demonstrating its effectiveness by achieving state-of-the-art performance in machine translation, surpassing previous LSTM and CNN based neural machine translation architectures.
 - The chapter on _Transformers and Large Language Models_ from _Speech and Language Processing_ by Jurafsky & Martin<sup><a href="#references">[2]</a></sup> which provides a more comprehensive and illustrative look into some of the high-level details discussed in _Attention Is All You Need_.
