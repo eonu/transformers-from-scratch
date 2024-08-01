@@ -44,7 +44,8 @@ All other layers provided by `torch.nn` are allowed, including:
 
 - Transformer models implemented and made available in other libraries such as HuggingFace's [`transformers`](https://huggingface.co/docs/transformers/en/index) are not used in this project.
 - However, the tokenizers provided by `transformers` were used, as developing tokenization algorithms was not the primary objective of this project.
-- Finally no existing _"x from scratch"_ resources were used, such as the famous _Let's build GPT: from scratch, in code, spelled out._ by Andrej Karpathy<sup><a href="#references">[3]</a></sup>.
+- No existing _"x from scratch"_ resources were used, such as the famous _Let's build GPT: from scratch, in code, spelled out._ by Andrej Karpathy<sup><a href="#references">[3]</a></sup>.
+- No other online resources were used, apart from official documentation for packages such as [PyTorch](https://pytorch.org/docs/stable/index.html), [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) and [Huggingface Tokenizers](https://huggingface.co/docs/transformers/en/main_classes/tokenizer).
 
 ## Details
 
