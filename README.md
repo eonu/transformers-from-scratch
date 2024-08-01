@@ -139,13 +139,13 @@ The following datasets were used to test the above transformer implementations o
 
 The transformer implementation is installable as a local Python package, named `transformer`.
 
-```python
+```console
 pip install -e .
 ```
 
 To run the notebooks, you will need additional dependencies which can be installed with the `notebooks` extra.
 
-```python
+```console
 pip install -e ".[notebooks]"
 ```
 
