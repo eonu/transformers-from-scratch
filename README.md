@@ -32,7 +32,7 @@ All other layers provided by `torch.nn` are allowed, including:
 
 ## Details
 
-While the original architecture implemented in _Attention Is All You Need_ is an encoder-decoder based architecture using transformers for neural machine translation which is a sequence-to-sequence learning task, this project was designed to be more general, allowing for a variety of natural language tasks by implementing encoder-only, decoder-only and encoder-decoder architectures.
+While the original architecture described in _Attention Is All You Need_ is an encoder-decoder based architecture using transformers for neural machine translation which is a sequence-to-sequence learning task, this project was designed to be more general, allowing for a variety of natural language tasks by implementing encoder-only, decoder-only and encoder-decoder architectures.
 
 <table>
     <tbody>
@@ -90,25 +90,34 @@ The following datasets were used to test the above transformer implementations o
 
 ### Encoder-only models
 
-- `ClassifierLM`: A generic transformer-based language model for assigning classes to text.
+- [`ClassifierLM`](transformer/models/classifier.py): A generic transformer-based language model for assigning classes to text.
   - [`notebooks/arxiv_categorization.ipynb`](notebooks/arxiv_categorization.ipynb) applies this model to the _arXiv Paper Abstracts_ dataset to categorize arXiv manuscripts based on their titles.
-- `RegressorLM`: A generic transformer-based language model for assigning scores to text.
+- [`RegressorLM`](transformer/models/regressor.py): A generic transformer-based language model for assigning scores to text.
   - [`notebooks/commonlit_readability.ipynb`](notebooks/commonlit_readability.ipynb) applies this model to the _CommonLit Readability Prize_ dataset to rate the complexity of literary passages for grade 3-12 students.
 
 ### Decoder-only models
 
-- `CausalLM`: A generic transformer-based language model for generating text in an autoregressive manner.
+- [`CausalLM`](transformer/models/causal.py): A generic transformer-based language model for generating text in an autoregressive manner.
   - [`notebooks/florida_man_generation.ipynb`](notebooks/florida_man.ipynb) applies this model to the _Reddit r/FloridaMan_ dataset to generate humorous news headlines involving the (mis)adventures of Florida men and women.
 
 ### Encoder-decoder models
 
-- `Seq2SeqLM`: A generic transformer-based language model for generating output text given an input text.
+- [`Seq2SeqLM`](transformer/models/seq2seq.py): A generic transformer-based language model for generating output text given an input text.
   - [`notebooks/arxiv_summarization.ipynb`](notebooks/arxiv_summarization.ipynb) applies this model to the _arxiv Paper Abstracts_ dataset to generate arXiv paper titles by summarizing their corresponding abstracts.
   - [`notebooks/europarl_translation.ipynb`](notebooks/europarl_translation.ipynb) applies this model to the _Europarl_ dataset to translate transcribed parliamentiary proceedings from French to English.
 
 ## Repository structure
 
-TODO
+- **`notebooks/`**: Notebooks applying the models in `transformer.models` to various datasets.
+- **`transformer/`**: Core package containing the transformer implementations.
+  - **`dataloaders/`**: [`LightningDataModule`](https://lightning.ai/docs/pytorch/stable/data/datamodule.html)s for each model in `transformer.models`.
+  - **`models/`**: Task-specific transformers implemented using `transformers.modules.transformers`.
+  - **`modules/`**: [`LightningModule`](https://lightning.ai/docs/pytorch/stable/common/lightning_module.html)s used within the transformers in `transformers.models`.
+    - **`transformers/`**: Encoder-only, decoder-only and encoder-decoder transformer definitions.
+    - `attention.py`: Masked/unmasked multi-head self attention definition.
+    - `block.py`: Transformer block definition.
+    - `embedding.py`: Positional encoding and input embedding definition.
+  - `params.py`: Hyper-parameters for modules in `transformer.modules`.
 
 ## Installation
 
