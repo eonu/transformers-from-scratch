@@ -98,7 +98,7 @@ While the original architecture described in _Attention Is All You Need_ is an e
 
 The following datasets were used to test the above transformer implementations on various tasks.
 
-- [arXiv Paper Abstracts](https://www.kaggle.com/datasets/spsayakpaul/arxiv-paper-abstracts): arXiv manuscripts and ther metadata including titles, abstracts and categories.
+- [arXiv Paper Abstracts](https://www.kaggle.com/datasets/spsayakpaul/arxiv-paper-abstracts): arXiv manuscripts and their metadata including titles, abstracts and categories.
 - [CommonLit Readability Prize](https://www.kaggle.com/competitions/commonlitreadabilityprize): Literary passages and their associated "readability" score for use in grade 3-12 classrooms.
 - [Reddit r/FloridaMan](https://www.kaggle.com/datasets/bcruise/reddit-rfloridaman): News headlines about various (often funny and irrational) actions performed by Florida men and women.
 - [Europarl](https://www.kaggle.com/datasets/nltkdata/europarl): Transcriptions of European Parliament proceedings between 1996-2006, collected in 11 languages.
@@ -134,7 +134,7 @@ The following datasets were used to test the above transformer implementations o
     - [`attention.py`](transformer/modules/attention.py): Masked/unmasked multi-head self attention definition.
     - [`block.py`](transformer/modules/block.py): Transformer block definition.
     - [`embedding.py`](transformer/modules/embedding.py): Positional encoding and input embedding definition.
-  - [`params.py`](transformer/modules/params.py): Pydantic hyper-parameter classes for modules in [`transformer.modules`](transformer/modules/).
+  - [`params.py`](transformer/params.py): Pydantic hyper-parameter classes for modules in [`transformer.modules`](transformer/modules/).
 
 ## Installation
 
