@@ -93,8 +93,8 @@ class DecoderTransformerBlock(LightningModule):
                             nn.Linear(
                                 self.params.feed_forward_dim, self.params.model_dim
                             ),
+                            nn.Dropout(0.1),
                         ),
-                        "dropout": nn.Dropout(0.1),
                         "norm": nn.LayerNorm(self.params.model_dim),
                     }
                 ),
@@ -136,6 +136,6 @@ class DecoderTransformerBlock(LightningModule):
         # shape: [batch_size, context_length, model_dim]
 
         # pass attention vectors through FFNN, add residual and normalize
-        hidden = self.ffnn["dropout"](self.ffnn["fc"](unmasked_attn))
+        hidden = self.ffnn["fc"](unmasked_attn)
         return self.ffnn["norm"](unmasked_attn + hidden)
         # shape: [batch_size, context_length, model_dim]

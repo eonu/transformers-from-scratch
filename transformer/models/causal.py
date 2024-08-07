@@ -25,13 +25,9 @@ class CausalLM(BaseLM):
         self.tokenizer = tokenizer
         self.model = nn.ModuleDict(
             {
-                "input": nn.ModuleDict(
-                    {
-                        "emb": InputEmbedding(
-                            len(self.input_tokenizer), config.model_dim
-                        ),
-                        "dropout": nn.Dropout(0.1),
-                    }
+                "input": nn.Sequential(
+                    InputEmbedding(len(self.input_tokenizer), config.model_dim),
+                    nn.Dropout(0.1),
                 ),
                 "decoder": DecoderTransformer(config),
             }
@@ -43,12 +39,12 @@ class CausalLM(BaseLM):
         # ids/masks shape: [batch_size, context_length]
 
         # create input embeddings for tokens and pass through transformer
-        emb = self.model["input"]["dropout"](self.model["input"]["emb"](ids))
+        emb = self.model["input"](ids)
         hidden = self.model["decoder"](emb, masks=masks)
         # emb/hidden shape: [batch_size, context_length, model_dim]
 
         # project back to vocabulary size reusing embedding weight matrix (weight-tied)
-        unemb = self.model["input"]["emb"].unembed(hidden)
+        unemb = self.model["input"][0].unembed(hidden)
         return nn.functional.log_softmax(unemb, dim=-1)
         # unemb/output shape: [batch_size, context_length, vocab_size]
 

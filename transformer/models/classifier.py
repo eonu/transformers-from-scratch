@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing as t
-from operator import itemgetter
 
 from transformer.models.base import BaseLM
 from transformer.modules.transformers.encoder_only import EncoderTransformer
@@ -14,7 +13,7 @@ import pydantic as pyd
 from torch import nn
 from transformers import PreTrainedTokenizer
 
-__all__ = ["BaseLM"]
+__all__ = ["ClassifierLM"]
 
 
 class ClassifierLM(BaseLM):
@@ -28,13 +27,9 @@ class ClassifierLM(BaseLM):
         self.tokenizer = tokenizer
         self.model = nn.ModuleDict(
             {
-                "input": nn.ModuleDict(
-                    {
-                        "emb": InputEmbedding(
-                            len(self.input_tokenizer), config.model_dim
-                        ),
-                        "dropout": nn.Dropout(0.1),
-                    }
+                "input": nn.Sequential(
+                    InputEmbedding(len(self.input_tokenizer), config.model_dim),
+                    nn.Dropout(0.1),
                 ),
                 "encoder": EncoderTransformer(config),
                 "softmax": nn.Sequential(
@@ -53,7 +48,7 @@ class ClassifierLM(BaseLM):
         # ids/masks shape: [batch_size, context_length]
 
         # create input embeddings for tokens and pass through transformer
-        emb = self.model["input"]["dropout"](self.model["input"]["emb"](ids))
+        emb = self.model["input"](ids)
         hidden = self.model["encoder"](emb, masks=masks)
         # emb/hidden shape: [batch_size, context_length, model_dim]
 

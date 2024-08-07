@@ -13,4 +13,4 @@ class BaseLM(LightningModule):
     def __init__(self: t.Self, config: TransformerParams) -> None:
         super().__init__()
         self.config = config
-        self.save_hyperparameters(self.config.dict())
+        self.save_hyperparameters(self.config.model_dump())

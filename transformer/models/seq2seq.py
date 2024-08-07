@@ -28,21 +28,13 @@ class Seq2SeqLM(BaseLM):
         self.output_tokenizer = output_tokenizer
         self.model = nn.ModuleDict(
             {
-                "input": nn.ModuleDict(
-                    {
-                        "emb": InputEmbedding(
-                            len(self.input_tokenizer), config.model_dim
-                        ),
-                        "dropout": nn.Dropout(0.1),
-                    }
+                "input": nn.Sequential(
+                    InputEmbedding(len(self.input_tokenizer), config.model_dim),
+                    nn.Dropout(0.1),
                 ),
-                "output": nn.ModuleDict(
-                    {
-                        "emb": InputEmbedding(
-                            len(self.input_tokenizer), config.model_dim
-                        ),
-                        "dropout": nn.Dropout(0.1),
-                    }
+                "output": nn.Sequential(
+                    InputEmbedding(len(self.input_tokenizer), config.model_dim),
+                    nn.Dropout(0.1),
                 ),
                 "encoder_decoder": EncoderDecoderTransformer(config),
             }
@@ -58,10 +50,8 @@ class Seq2SeqLM(BaseLM):
         # ids/masks shape: [batch_size, context_length]
 
         # create input embeddings for tokens and pass through transformer
-        inputs = self.model["input"]["dropout"](self.model["input"]["emb"](input_ids))
-        outputs = self.model["output"]["dropout"](
-            self.model["output"]["emb"](output_ids)
-        )
+        inputs = self.model["input"](input_ids)
+        outputs = self.model["output"](output_ids)
         # inputs/outputs shape: [batch_size, context_length, model_dim]
 
         # pass inputs, outputs and their masks through encoder-decoder
@@ -74,7 +64,7 @@ class Seq2SeqLM(BaseLM):
         # hidden shape: [batch_size, context_length, model_dim]
 
         # project back to outpu vocabulary size reusing embedding weight matrix (weight-tied)
-        unemb = self.model["output"]["emb"].unembed(hidden)
+        unemb = self.model["output"][0].unembed(hidden)
         return nn.functional.log_softmax(unemb, dim=-1)
         # unemb/output shape: [batch_size, context_length, output_vocab_size]
 
