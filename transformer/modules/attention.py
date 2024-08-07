@@ -8,11 +8,9 @@ from torch import nn
 from lightning import LightningModule
 
 from transformer.params import SelfAttentionParams, MultiHeadSelfAttentionParams
+from transformer.utils import EPS
 
 __all__ = ["MultiHeadSelfAttention", "SelfAttention"]
-
-
-EPS = torch.finfo().eps
 
 
 class MultiHeadSelfAttention(LightningModule):
