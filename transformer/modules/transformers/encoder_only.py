@@ -5,7 +5,6 @@ import typing as t
 from transformer.params import TransformerParams
 from transformer.modules.transformers.base import BaseTransformer
 
-
 __all__ = ["EncoderTransformer"]
 
 

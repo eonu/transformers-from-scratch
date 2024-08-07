@@ -2,20 +2,21 @@ from __future__ import annotations
 
 import typing as t
 
+import torch
+import pydantic as pyd
+from torch import nn
+from transformers import PreTrainedTokenizer
+
 from transformer.models.base import BaseLM
 from transformer.modules.transformers.decoder_only import DecoderTransformer
 from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
 
-from transformers import PreTrainedTokenizer
-
-import torch
-from torch import nn
-
 __all__ = ["CausalLM"]
 
 
 class CausalLM(BaseLM):
+    @pyd.validate_call
     def __init__(
         self: t.Self,
         config: TransformerParams,

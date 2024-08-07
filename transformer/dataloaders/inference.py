@@ -6,9 +6,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 import torch
-from torch.utils.data import DataLoader, Dataset
-
 import numpy as np
+from torch.utils.data import DataLoader, Dataset
 from transformers import PreTrainedTokenizer
 from sklearn.model_selection import train_test_split
 from lightning import LightningDataModule

@@ -1,22 +1,22 @@
 from __future__ import annotations
 
 import typing as t
-from operator import itemgetter
+
+import torch
+import pydantic as pyd
+from torch import nn
+from transformers import PreTrainedTokenizer
 
 from transformer.models.base import BaseLM
 from transformer.modules.transformers.encoder_decoder import EncoderDecoderTransformer
 from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
 
-from transformers import PreTrainedTokenizer
-
-import torch
-from torch import nn
-
 __all__ = ["Seq2SeqLM"]
 
 
 class Seq2SeqLM(BaseLM):
+    @pyd.validate_call
     def __init__(
         self: t.Self,
         config: TransformerParams,

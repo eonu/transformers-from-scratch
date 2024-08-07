@@ -11,6 +11,7 @@ from transformer.params import SelfAttentionParams, MultiHeadSelfAttentionParams
 
 __all__ = ["MultiHeadSelfAttention", "SelfAttention"]
 
+
 EPS = torch.finfo().eps
 
 

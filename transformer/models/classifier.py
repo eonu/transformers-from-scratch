@@ -2,21 +2,21 @@ from __future__ import annotations
 
 import typing as t
 
-from transformer.models.base import BaseLM
-from transformer.modules.transformers.encoder_only import EncoderTransformer
-from transformer.modules.embedding import InputEmbedding
-from transformer.params import TransformerParams
-
-
 import torch
 import pydantic as pyd
 from torch import nn
 from transformers import PreTrainedTokenizer
 
+from transformer.models.base import BaseLM
+from transformer.modules.transformers.encoder_only import EncoderTransformer
+from transformer.modules.embedding import InputEmbedding
+from transformer.params import TransformerParams
+
 __all__ = ["ClassifierLM"]
 
 
 class ClassifierLM(BaseLM):
+    @pyd.validate_call
     def __init__(
         self: t.Self,
         config: TransformerParams,
