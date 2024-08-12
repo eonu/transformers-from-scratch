@@ -16,7 +16,7 @@ __all__ = ["Seq2SeqLM"]
 
 
 class Seq2SeqLM(BaseLM):
-    @pyd.validate_call
+    @pyd.validate_call(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self: t.Self,
         config: TransformerParams,

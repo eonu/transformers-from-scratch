@@ -17,7 +17,7 @@ __all__ = ["ClassifierLM"]
 
 
 class ClassifierLM(BaseLM):
-    @pyd.validate_call
+    @pyd.validate_call(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self: t.Self,
         config: TransformerParams,
@@ -29,7 +29,7 @@ class ClassifierLM(BaseLM):
         self.model = nn.ModuleDict(
             {
                 "input": nn.Sequential(
-                    InputEmbedding(len(self.input_tokenizer), config.model_dim),
+                    InputEmbedding(len(self.tokenizer), config.model_dim),
                     nn.Dropout(0.1),
                 ),
                 "encoder": EncoderTransformer(config),
