@@ -33,6 +33,7 @@ class ClassifierLM(BaseLM):
                     nn.Dropout(0.1),
                 ),
                 "encoder": EncoderTransformer(config),
+                "mean": utils.nn.MaskedMean(),
                 "softmax": nn.Sequential(
                     nn.Linear(config.model_dim, num_classes),
                     nn.Tanh(),
@@ -52,7 +53,7 @@ class ClassifierLM(BaseLM):
         # emb/hidden shape: [batch_size, context_length, model_dim]
 
         # calculate the avg. embedding for each sequence (ignoring padding)
-        avg = utils.masked_mean(hidden, masks=masks)
+        avg = self.model["mean"](hidden, masks=masks)
         # avg shape: [batch_size, model_dim]
 
         # calculate softmax over averaged encoder output (passed through a linear layer)

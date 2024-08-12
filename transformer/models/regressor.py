@@ -30,6 +30,7 @@ class RegressorLM(BaseLM):
                     nn.Dropout(0.1),
                 ),
                 "encoder": EncoderTransformer(config),
+                "mean": utils.nn.MaskedMean(),
                 "output": nn.Sequential(
                     nn.Linear(config.model_dim, 1),
                     nn.Sigmoid(),
@@ -49,7 +50,7 @@ class RegressorLM(BaseLM):
         # emb/hidden shape: [batch_size, context_length, model_dim]
 
         # calculate the avg. embedding for each sequence (ignoring padding)
-        avg = utils.masked_mean(hidden, masks=masks)
+        avg = self.model["mean"](hidden, masks=masks)
         # avg shape: [batch_size, model_dim]
 
         # calculate scores over averaged encoder output (passed through a linear layer)

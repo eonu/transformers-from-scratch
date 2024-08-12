@@ -8,7 +8,7 @@ from torch import nn
 from lightning import LightningModule
 
 from transformer.params import SelfAttentionParams, MultiHeadSelfAttentionParams
-from transformer.utils import EPS
+from transformer.utils import constants
 
 __all__ = ["MultiHeadSelfAttention", "SelfAttention"]
 
@@ -91,7 +91,7 @@ class SelfAttention(LightningModule):
             # shape: [batch_size, context_length, context_length]
 
         # apply mask(s)
-        scores.masked_fill_(attn_mask.bool(), -EPS)
+        scores.masked_fill_(attn_mask.bool(), -constants.EPS)
 
         # compute scores
         return nn.functional.softmax(scores, dim=-1) @ v
