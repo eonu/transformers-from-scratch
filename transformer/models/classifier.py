@@ -7,6 +7,7 @@ import pydantic as pyd
 from torch import nn
 from transformers import PreTrainedTokenizer
 
+from transformer import utils
 from transformer.models.base import BaseLM
 from transformer.modules.transformers.encoder_only import EncoderTransformer
 from transformer.modules.embedding import InputEmbedding
@@ -33,8 +34,6 @@ class ClassifierLM(BaseLM):
                 ),
                 "encoder": EncoderTransformer(config),
                 "softmax": nn.Sequential(
-                    nn.AvgPool2d(kernel_size=(config.context_length, 1)),
-                    nn.Flatten(start_dim=1),
                     nn.Linear(config.model_dim, num_classes),
                     nn.Tanh(),
                     nn.LogSoftmax(dim=-1),
@@ -52,8 +51,12 @@ class ClassifierLM(BaseLM):
         hidden = self.model["encoder"](emb, masks=masks)
         # emb/hidden shape: [batch_size, context_length, model_dim]
 
+        # calculate the avg. embedding for each sequence (ignoring padding)
+        avg = utils.masked_mean(hidden, masks=masks)
+        # avg shape: [batch_size, model_dim]
+
         # calculate softmax over averaged encoder output (passed through a linear layer)
-        return self.model["softmax"](hidden)
+        return self.model["softmax"](avg)
         # output shape: [batch_size, num_classes]
 
     def configure_optimizers(self: t.Self) -> torch.optim.Optimizer:
