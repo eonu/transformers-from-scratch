@@ -66,11 +66,12 @@ class ClassifierLM(BaseLM):
     def step(
         self: t.Self, batch: tuple[torch.LongTensor, ...], *, stage: str
     ) -> torch.FloatTensor:
-        ids, targets, masks = batch
+        ids, targets, weights, masks = batch
         # make predictions
         preds = self(ids, masks)
-        # calculate loss
-        loss = nn.functional.nll_loss(preds, targets)
+        # calculate (weighted) loss
+        loss = nn.functional.nll_loss(preds, targets, reduction="none")
+        loss = (weights * loss).mean()
         self.log(f"{stage}_loss", loss, prog_bar=True, on_step=False, on_epoch=True)
         return loss
 

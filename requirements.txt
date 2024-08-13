@@ -9,3 +9,4 @@ protobuf
 notebook
 tensorboard
 torch_tb_profiler
+matplotlib

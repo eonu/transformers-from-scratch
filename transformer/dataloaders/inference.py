@@ -19,6 +19,7 @@ __all__ = ["InferenceDataModule", "InferenceDataset"]
 class Split:
     X: list[str] | None = None
     y: torch.Tensor | None = None
+    weights: torch.FloatTensor | None = None
 
 
 class InferenceDataModule(LightningDataModule):
@@ -44,7 +45,7 @@ class InferenceDataModule(LightningDataModule):
         self.persistent_workers = persistent_workers
         self.limit = limit
         self.random_state = random_state
-        self.X, self.y = None, None
+        self.X, self.y, self.weights = None, None, None
         self.splits: dict[Literal["train", "val", "test"], Dataset] = {}
 
     @abc.abstractmethod
@@ -52,22 +53,30 @@ class InferenceDataModule(LightningDataModule):
         # limit the data if specified
         X = self.X[: self.limit] if self.limit else self.X
         y = self.y[: self.limit] if self.limit else self.y
+        weights = (
+            self.weights
+            if self.weights is not None
+            else np.ones_like(self.y, dtype=float)
+        )
+        weights = weights[: self.limit] if self.limit else weights
 
         # generate train/val/test set splits
         splits: dict[Literal["train", "val", "test"], Split] = defaultdict(Split)
         train, val, test = itemgetter("train", "val", "test")(splits)
         stratify = y if y.dtype == torch.long else None
-        train.X, X, train.y, y = train_test_split(
+        train.X, X, train.y, y, train.weights, weights = train_test_split(
             X,
             y,
+            weights,
             test_size=(self.val_size + self.test_size),
             random_state=self.random_state,
             stratify=stratify,
         )
         stratify = y if y.dtype == torch.long else None
-        val.X, test.X, val.y, test.y = train_test_split(
+        val.X, test.X, val.y, test.y, val.weights, test.weights = train_test_split(
             X,
             y,
+            weights,
             test_size=(self.test_size / (self.val_size + self.test_size)),
             random_state=self.random_state,
             stratify=stratify,
@@ -77,7 +86,7 @@ class InferenceDataModule(LightningDataModule):
             # encode data and obtain examples, labels and masks
             ids, masks = self.encode(split_data.X)
             self.splits[split] = InferenceDataset(
-                ids=ids, outputs=split_data.y, masks=masks
+                ids=ids, outputs=split_data.y, weights=split_data.weights, masks=masks
             )
 
     def dataloader(
@@ -122,15 +131,22 @@ class InferenceDataset(Dataset):
         self: t.Self,
         ids: torch.LongTensor,
         outputs: torch.Tensor,
+        weights: torch.FloatTensor,
         masks: torch.LongTensor,
     ) -> None:
         super().__init__()
         self.ids = ids
         self.outputs = outputs
+        self.weights = weights
         self.masks = masks
 
     def __len__(self: t.Self) -> int:
         return len(self.ids)
 
-    def __getitem__(self: t.Self, index: int) -> tuple[torch.LongTensor, ...]:
-        return self.ids[index], self.outputs[index], self.masks[index]
+    def __getitem__(self: t.Self, index: int) -> tuple[torch.Tensor, ...]:
+        return (
+            self.ids[index],
+            self.outputs[index],
+            self.weights[index],
+            self.masks[index],
+        )
