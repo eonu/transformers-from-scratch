@@ -67,7 +67,7 @@ While the original architecture described in _Attention Is All You Need_ is an e
         </tr>
         <tr>
             <td><b>Tasks</b></td>
-            <td>Inference</td>
+            <td>Contextual embedding and supervised inference</td>
             <td>Autoregressive generation</td>
             <td>Sequence-to-sequence generation</td>
         </tr>
@@ -75,7 +75,8 @@ While the original architecture described in _Attention Is All You Need_ is an e
             <td><b>Example use-cases</b></td>
             <td>
                 <ul>
-                    <li>Sentiment classification/regression</li>
+                    <li>Producing contextual token embeddings</li>
+                    <li>Sentiment classification</li>
                     <li>Intent classification</li>
                 </ul>
             </td>
@@ -86,7 +87,7 @@ While the original architecture described in _Attention Is All You Need_ is an e
             </td>
             <td>
                 <ul>
-                    <li>Neural machine translation</li>
+                    <li>Machine translation</li>
                     <li>Text summarization</li>
                 </ul>
             </td>
@@ -134,6 +135,7 @@ The following datasets were used to test the above transformer implementations o
     - [`attention.py`](transformer/modules/attention.py): Masked/unmasked multi-head self attention definition.
     - [`block.py`](transformer/modules/block.py): Transformer block definition.
     - [`embedding.py`](transformer/modules/embedding.py): Positional encoding and input embedding definition.
+  - [**`utils/`**](transformer/utils/): Supporting custom layers, functions and constants.
   - [`params.py`](transformer/params.py): Pydantic hyper-parameter classes for modules in [`transformer.modules`](transformer/modules/).
 
 ## Installation
