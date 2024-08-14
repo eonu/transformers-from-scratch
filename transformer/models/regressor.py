@@ -9,7 +9,7 @@ from transformers import PreTrainedTokenizer
 
 from transformer import utils
 from transformer.models.base import BaseLM
-from transformer.modules.transformers.encoder_only import EncoderTransformer
+from transformer.modules.transformers.encoder_only import TransformerEncoder
 from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
 
@@ -29,12 +29,9 @@ class RegressorLM(BaseLM):
                     InputEmbedding(len(self.tokenizer), config.model_dim),
                     nn.Dropout(0.1),
                 ),
-                "encoder": EncoderTransformer(config),
+                "encoder": TransformerEncoder(config),
                 "mean": utils.nn.MaskedMean(),
-                "output": nn.Sequential(
-                    nn.Linear(config.model_dim, 1),
-                    nn.Sigmoid(),
-                ),
+                "output": nn.Sequential(nn.Linear(config.model_dim, 1), nn.Sigmoid()),
             }
         )
 

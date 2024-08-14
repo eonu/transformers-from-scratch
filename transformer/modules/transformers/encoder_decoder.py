@@ -8,19 +8,19 @@ from lightning import LightningModule
 
 from transformer.params import TransformerParams, TransformerBlockParams
 from transformer.modules.attention import MultiHeadSelfAttention
-from transformer.modules.transformers.encoder_only import EncoderTransformer
+from transformer.modules.transformers.encoder_only import TransformerEncoder
 
-__all__ = ["EncoderDecoderTransformer"]
+__all__ = ["TransformerEncoderDecoder"]
 
 
-class EncoderDecoderTransformer(LightningModule):
+class TransformerEncoderDecoder(LightningModule):
     def __init__(self: t.Self, params: TransformerParams) -> None:
         super().__init__()
         self.params: TransformerParams = params
         self.model = nn.ModuleDict(
             {
-                "encoder": EncoderTransformer(params=params),
-                "decoder": DecoderTransformer(params=params),
+                "encoder": TransformerEncoder(params=params),
+                "decoder": TransformerDecoder(params=params),
             }
         )
 
@@ -37,7 +37,7 @@ class EncoderDecoderTransformer(LightningModule):
         # shape: [batch_size, context_length, model_dim]
 
 
-class DecoderTransformer(LightningModule):
+class TransformerDecoder(LightningModule):
     def __init__(self: t.Self, params: TransformerParams) -> None:
         super().__init__()
         self.params: TransformerParams = params

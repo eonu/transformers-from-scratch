@@ -8,7 +8,7 @@ from torch import nn
 from transformers import PreTrainedTokenizer
 
 from transformer.models.base import BaseLM
-from transformer.modules.transformers.encoder_decoder import EncoderDecoderTransformer
+from transformer.modules.transformers.encoder_decoder import TransformerEncoderDecoder
 from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
 
@@ -33,10 +33,10 @@ class Seq2SeqLM(BaseLM):
                     nn.Dropout(0.1),
                 ),
                 "output": nn.Sequential(
-                    InputEmbedding(len(self.input_tokenizer), config.model_dim),
+                    InputEmbedding(len(self.output_tokenizer), config.model_dim),
                     nn.Dropout(0.1),
                 ),
-                "encoder_decoder": EncoderDecoderTransformer(config),
+                "encoder_decoder": TransformerEncoderDecoder(config),
             }
         )
 
@@ -63,7 +63,7 @@ class Seq2SeqLM(BaseLM):
         )
         # hidden shape: [batch_size, context_length, model_dim]
 
-        # project back to outpu vocabulary size reusing embedding weight matrix (weight-tied)
+        # project back to output vocabulary size reusing embedding weight matrix (weight-tied)
         unemb = self.model["output"][0].unembed(hidden)
         return nn.functional.log_softmax(unemb, dim=-1)
         # unemb/output shape: [batch_size, context_length, output_vocab_size]
