@@ -67,7 +67,7 @@ While the original architecture described in _Attention Is All You Need_ is an e
         </tr>
         <tr>
             <td><b>Tasks</b></td>
-            <td>Contextual embedding and supervised inference</td>
+            <td>Contextualized embedding and supervised inference</td>
             <td>Autoregressive generation</td>
             <td>Sequence-to-sequence generation</td>
         </tr>
@@ -75,7 +75,7 @@ While the original architecture described in _Attention Is All You Need_ is an e
             <td><b>Example use-cases</b></td>
             <td>
                 <ul>
-                    <li>Producing contextual token embeddings</li>
+                    <li>Producing contextualized token embeddings</li>
                     <li>Sentiment classification</li>
                     <li>Intent classification</li>
                 </ul>
