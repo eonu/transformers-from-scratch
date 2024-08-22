@@ -37,18 +37,7 @@ class GreedySearchDecoder(BaseDecoder):
         )
 
         # valid ids to sample from
-        valid_ids = torch.tensor(
-            [
-                token_id
-                for token_id in range(len(tokenizer))
-                if token_id
-                not in (
-                    tokenizer.bos_token_id,
-                    tokenizer.pad_token_id,
-                    tokenizer.unk_token_id,
-                )
-            ]
-        )
+        valid_ids = self._valid_ids(tokenizer)
 
         while (
             length < self.params.max_length

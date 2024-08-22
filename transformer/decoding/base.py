@@ -24,6 +24,21 @@ class BaseDecoder(metaclass=abc.ABCMeta):
         self.model: CausalLM | Seq2SeqLM = model.eval()
         self.random_state: np.random.RandomState = check_random_state(random_state)
 
+    @staticmethod
+    def _valid_ids(tokenizer: PreTrainedTokenizer, /) -> torch.LongTensor:
+        return torch.tensor(
+            [
+                token_id
+                for token_id in range(len(tokenizer))
+                if token_id
+                not in (
+                    tokenizer.bos_token_id,
+                    tokenizer.pad_token_id,
+                    tokenizer.unk_token_id,
+                )
+            ]
+        )
+
     @abc.abstractmethod
     def _generate(
         self: t.Self,
@@ -62,7 +77,7 @@ class BaseDecoder(metaclass=abc.ABCMeta):
         )
         output[:eos_idx] = output_ids[0, :eos_idx].clone()
 
-        return output, output_ids, output_masks, eos_idx
+        return output, output_ids, output_masks, eos_idx.item()
 
     def generate(self: t.Self, context: str | None = None, /) -> str:
         if not isinstance(self.model, CausalLM):
