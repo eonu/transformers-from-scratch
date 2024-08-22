@@ -1,4 +1,4 @@
-from transformer.utils.nn import functional, layers
+from transformer.utils.nn import layers
 from transformer.utils.nn.layers import *
 
-__all__ = ["functional", *layers.__all__]
+__all__ = [*layers.__all__]

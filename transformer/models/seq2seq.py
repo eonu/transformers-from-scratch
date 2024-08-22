@@ -8,7 +8,7 @@ from torch import nn
 from transformers import PreTrainedTokenizer
 
 from transformer.models.base import BaseLM
-from transformer.modules.transformers.encoder_decoder import TransformerEncoderDecoder
+from transformer.modules.transformers import TransformerEncoderDecoder
 from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
 
@@ -19,24 +19,24 @@ class Seq2SeqLM(BaseLM):
     @pyd.validate_call(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self: t.Self,
-        config: TransformerParams,
+        params: TransformerParams,
         input_tokenizer: PreTrainedTokenizer,
         output_tokenizer: PreTrainedTokenizer,
     ) -> None:
-        super().__init__(config=config)
+        super().__init__(params=params)
         self.input_tokenizer = input_tokenizer
         self.output_tokenizer = output_tokenizer
         self.model = nn.ModuleDict(
             {
                 "input": nn.Sequential(
-                    InputEmbedding(len(self.input_tokenizer), config.model_dim),
+                    InputEmbedding(len(self.input_tokenizer), params.model_dim),
                     nn.Dropout(0.1),
                 ),
                 "output": nn.Sequential(
-                    InputEmbedding(len(self.output_tokenizer), config.model_dim),
+                    InputEmbedding(len(self.output_tokenizer), params.model_dim),
                     nn.Dropout(0.1),
                 ),
-                "encoder_decoder": TransformerEncoderDecoder(config),
+                "encoder_decoder": TransformerEncoderDecoder(params),
             }
         )
 

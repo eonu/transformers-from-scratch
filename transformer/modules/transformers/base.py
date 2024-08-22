@@ -6,7 +6,7 @@ import torch
 from torch import nn
 from lightning import LightningModule
 
-from transformer.params import TransformerParams
+from transformer.params.transformer import TransformerParams
 from transformer.modules.block import TransformerBlock
 
 __all__ = ["BaseTransformer"]

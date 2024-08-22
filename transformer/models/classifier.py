@@ -9,7 +9,7 @@ from transformers import PreTrainedTokenizer
 
 from transformer import utils
 from transformer.models.base import BaseLM
-from transformer.modules.transformers.encoder_only import TransformerEncoder
+from transformer.modules.transformers import TransformerEncoder
 from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
 
@@ -20,22 +20,22 @@ class ClassifierLM(BaseLM):
     @pyd.validate_call(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self: t.Self,
-        config: TransformerParams,
+        params: TransformerParams,
         tokenizer: PreTrainedTokenizer,
         num_classes: pyd.PositiveInt,
     ) -> None:
-        super().__init__(config=config)
+        super().__init__(params=params)
         self.tokenizer = tokenizer
         self.model = nn.ModuleDict(
             {
                 "input": nn.Sequential(
-                    InputEmbedding(len(self.tokenizer), config.model_dim),
+                    InputEmbedding(len(self.tokenizer), params.model_dim),
                     nn.Dropout(0.1),
                 ),
-                "encoder": TransformerEncoder(config),
+                "encoder": TransformerEncoder(params),
                 "mean": utils.nn.MaskedMean(),
                 "softmax": nn.Sequential(
-                    nn.Linear(config.model_dim, num_classes),
+                    nn.Linear(params.model_dim, num_classes),
                     nn.Tanh(),
                     nn.LogSoftmax(dim=-1),
                 ),

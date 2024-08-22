@@ -5,10 +5,11 @@
 <p align="center">
   <sup>
     <b>Contents</b>:&nbsp;
-    <a href="#restrictions">Restrictions</a> ·
+    <a href="#features">Features</a> ·
+    <a href="#example">Example</a> ·
     <a href="#details">Details</a> ·
     <a href="#datasets">Datasets</a> ·
-    <a href="#models-and-examples">Models and examples</a> ·
+    <a href="#models-and-notebooks">Models and notebooks</a> ·
     <a href="#repository-structure">Repository structure</a> ·
     <a href="#installation">Installation</a> ·
     <a href="#running">Running</a> ·
@@ -21,11 +22,18 @@ The repository contains a modular Python implementation of transformer architect
 - The seminal paper _Attention Is All You Need_ by Vaswani et al.<sup><a href="#references">[1]</a></sup> that details the novel attention-based transformer architecture and its application to sequence-to-sequence tasks, demonstrating its effectiveness by achieving state-of-the-art performance in machine translation, surpassing previous LSTM and CNN based neural machine translation architectures.
 - The chapter on _Transformers and Large Language Models_ from _Speech and Language Processing_ by Jurafsky & Martin<sup><a href="#references">[2]</a></sup> which provides a more comprehensive and illustrative look into some of the high-level details discussed in _Attention Is All You Need_.
 
-## Restrictions
+## Features
 
-This project is implemented using [PyTorch](https://pytorch.org/) and [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/).
+- Generic encoder-only, decoder-only and encoder-decoder transformer architectures.
+- Wrappers for causal language modelling, sequence-to-sequence generation and classification/regression tasks.
+- Various decoding methods for causal/sequence-to-sequence generation:
+  - Search-based (greedy and beam search)
+  - Sampling-based (nucleus, temperature and top-k sampling)
+- Example applications to real-world datasets.
 
 ### PyTorch restrictions
+
+This project is implemented using [PyTorch](https://pytorch.org/) and [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/).
 
 As PyTorch provides a number of transformer and attention related layers in its [`torch.nn`](https://pytorch.org/docs/stable/nn.html) submodule, this project explicitly avoids the use of:
 
@@ -46,6 +54,47 @@ All other layers provided by `torch.nn` are allowed, including:
 - However, the tokenizers provided by `transformers` were used, as developing tokenization algorithms was not the primary objective of this project.
 - No existing _"x from scratch"_ resources were used, such as the famous _Let's build GPT: from scratch, in code, spelled out._ by Andrej Karpathy<sup><a href="#references">[3]</a></sup>.
 - No other online resources were used, apart from official documentation for packages such as [PyTorch](https://pytorch.org/docs/stable/index.html), [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) and [Huggingface Tokenizers](https://huggingface.co/docs/transformers/en/main_classes/tokenizer).
+
+## Example
+
+Training a causal language model to generate "Florida man"-style news headlines.
+
+```python
+from transformers import LlamaTokenizer
+
+from transformer.params import TransformerParams, TemperatureSamplingParams
+from transformer.models import CausalLM
+from transformer.decoding import TemperatureSamplingDecoder
+
+# initialize HuggingFace tokenizer
+tokenizer = LlamaTokenizer.from_pretrained(
+    "huggyllama/llama-7b", add_eos_token=True, legacy=False
+)
+tokenizer.add_special_tokens({"pad_token": "<pad>"})
+
+# initialize the causal language model
+model = CausalLM(
+    params=TransformerParams(context_length=64),
+    tokenizer=tokenizer,
+)
+
+# train the language model
+model.train(...)
+
+# initialize decoder for sequence generation
+decoder = TemperatureSamplingDecoder(
+    params=TemperatureSamplingParams(max_length=100, temperature=0.5),
+    model=model,
+)
+
+# generation without context
+decoder.generate()
+'Florida man arrested after baby alligator, guns, drugs found inside truck'
+
+# generation with context
+decoder.generate("Florida man shot")
+'Florida man shot and killed while attempting to steal pizza and Pokemon cards from Target'
+```
 
 ## Details
 
@@ -104,7 +153,7 @@ The following datasets were used to test the above transformer implementations o
 - [Reddit r/FloridaMan](https://www.kaggle.com/datasets/bcruise/reddit-rfloridaman): News headlines about various (often funny and irrational) actions performed by Florida men and women.
 - [Europarl](https://www.kaggle.com/datasets/nltkdata/europarl): Transcriptions of European Parliament proceedings between 1996-2006, collected in 11 languages.
 
-## Models and examples
+## Models and notebooks
 
 ### Encoder-only models
 
@@ -129,14 +178,15 @@ The following datasets were used to test the above transformer implementations o
 - [**`notebooks/`**](notebooks/): Notebooks applying the models in [`transformer.models`](transformer/models/) to various datasets.
 - [**`transformer/`**](transformer/): Core package containing the transformer implementations.
   - [**`dataloaders/`**](transformer/dataloaders/): [`LightningDataModule`](https://lightning.ai/docs/pytorch/stable/data/datamodule.html)s for each model in [`transformer.models`](transformer/models/).
+  - [**`decoding/`**](transformers/decoding/): Decoding method implementations for causal and sequence-to-sequence LMs.
   - [**`models/`**](transformer/models/): Task-specific transformers implemented using [`transformer.modules.transformers`](transformer/modules/transformers/).
   - [**`modules/`**](transformer/modules/): [`LightningModule`](https://lightning.ai/docs/pytorch/stable/common/lightning_module.html)s used within the transformers in [`transformer.models`](transformer/models/).
     - [**`transformers/`**](transformer/modules/transformers/): Encoder-only, decoder-only and encoder-decoder transformer definitions.
     - [`attention.py`](transformer/modules/attention.py): Masked/unmasked multi-head self attention definition.
     - [`block.py`](transformer/modules/block.py): Transformer block definition.
     - [`embedding.py`](transformer/modules/embedding.py): Positional encoding and input embedding definition.
+  - [**`params/`**](transformer/params/): Pydantic hyper-parameter classes.
   - [**`utils/`**](transformer/utils/): Supporting custom layers, functions and constants.
-  - [`params.py`](transformer/params.py): Pydantic hyper-parameter classes for modules in [`transformer.modules`](transformer/modules/).
 
 ## Installation
 

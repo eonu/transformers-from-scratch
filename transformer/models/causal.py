@@ -8,7 +8,7 @@ from torch import nn
 from transformers import PreTrainedTokenizer
 
 from transformer.models.base import BaseLM
-from transformer.modules.transformers.decoder_only import TransformerDecoder
+from transformer.modules.transformers import TransformerDecoder
 from transformer.modules.embedding import InputEmbedding
 from transformer.params import TransformerParams
 
@@ -19,18 +19,18 @@ class CausalLM(BaseLM):
     @pyd.validate_call(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self: t.Self,
-        config: TransformerParams,
+        params: TransformerParams,
         tokenizer: PreTrainedTokenizer,
     ) -> None:
-        super().__init__(config=config)
+        super().__init__(params=params)
         self.tokenizer = tokenizer
         self.model = nn.ModuleDict(
             {
                 "input": nn.Sequential(
-                    InputEmbedding(len(self.tokenizer), config.model_dim),
+                    InputEmbedding(len(self.tokenizer), params.model_dim),
                     nn.Dropout(0.1),
                 ),
-                "decoder": TransformerDecoder(config),
+                "decoder": TransformerDecoder(params),
             }
         )
 
