@@ -39,6 +39,7 @@ class BeamSearchParams(BaseDecodingParams):
 class TemperatureSamplingParams(BaseDecodingParams):
     _decoding_type: DecodingType = pyd.PrivateAttr(DecodingType.TEMPERATURE)
     temperature: pyd.NonNegativeFloat
+    k: pyd.PositiveInt | None = None
 
 
 class TopKSamplingParams(BaseDecodingParams):

@@ -83,7 +83,7 @@ model.train(...)
 
 # initialize decoder for sequence generation
 decoder = TemperatureSamplingDecoder(
-    params=TemperatureSamplingParams(max_length=100, temperature=0.5),
+    params=TemperatureSamplingParams(max_length=100, temperature=0.5, k=5),
     model=model,
 )
 
