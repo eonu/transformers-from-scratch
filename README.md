@@ -25,7 +25,7 @@ The repository contains a modular Python implementation of transformer architect
 ## Features
 
 - Generic encoder-only, decoder-only and encoder-decoder transformer architectures.
-- Wrappers for causal language modelling, sequence-to-sequence generation and classification/regression tasks.
+- Wrappers for causal language modelling, sequence-to-sequence generation and classification/regression.
 - Various decoding methods for causal/sequence-to-sequence generation:
   - Search-based (greedy and beam search)
   - Sampling-based (nucleus, temperature and top-k sampling)
